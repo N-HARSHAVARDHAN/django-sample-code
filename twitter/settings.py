@@ -78,7 +78,7 @@ WSGI_APPLICATION = 'twitter.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.environ.get('postgresql://django_sample_project_postgres_user:TAHUvQGX81JkFICRMaPyBMWLvvBSJ01w@dpg-d8t3ui4m0tmc73bsdvr0-a.oregon-postgres.render.com/django_sample_project_postgres')
+        default=os.environ.get('DATABASE_URL')
     )
 }
 # Password validation
