@@ -81,8 +81,6 @@ DATABASES = {
         default=os.environ.get('postgresql://django_sample_project_postgres_user:TAHUvQGX81JkFICRMaPyBMWLvvBSJ01w@dpg-d8t3ui4m0tmc73bsdvr0-a.oregon-postgres.render.com/django_sample_project_postgres')
     )
 }
-
-
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 
