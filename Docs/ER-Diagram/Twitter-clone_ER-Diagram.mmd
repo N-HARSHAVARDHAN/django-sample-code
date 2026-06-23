@@ -1,0 +1,66 @@
+erDiagram
+	direction TB
+	USER {
+		int id  ""  
+		string username  ""  
+		string email  ""  
+		string password  ""  
+		bool is_verified  ""  
+	}
+
+	PROFILE {
+		int id  ""  
+		int user_id  ""  
+		string display_name  ""  
+		string bio  ""  
+		string profile_photo  ""  
+	}
+
+	TWEET {
+		int id  ""  
+		int user_id  ""  
+		text content  ""  
+		datetime created_at  ""  
+	}
+
+	COMMENT {
+		int id  ""  
+		int user_id  ""  
+		int tweet_id  ""  
+		text content  ""  
+		datetime created_at  ""  
+	}
+
+	LIKE {
+		int id  ""  
+		int user_id  ""  
+		int tweet_id  ""  
+	}
+
+	FOLLOW {
+		int id  ""  
+		int follower_id  ""  
+		int following_id  ""  
+	}
+
+	SUBSCRIPTION {
+		int id  ""  
+		int user_id  ""  
+		string plan  ""  
+		date start_date  ""  
+		date end_date  ""  
+	}
+
+	Untitled-Entity {
+
+	}
+
+	USER||--||PROFILE:"has"
+	USER||--o{TWEET:"posts"
+	USER||--o{COMMENT:"writes"
+	USER||--o{LIKE:"creates"
+	USER||--o{FOLLOW:"follows"
+	USER||--o|SUBSCRIPTION:"owns"
+	TWEET||--o{COMMENT:"receives"
+	TWEET||--o{LIKE:"receives"
+	FOLLOW}|--|{Untitled-Entity:"  "
