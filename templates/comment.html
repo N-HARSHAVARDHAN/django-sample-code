@@ -1,0 +1,40 @@
+{% load static %}
+
+<div class="comment">
+
+    {% if comment.user.profile_pic %}
+        <img src="{{ comment.user.profile_pic.url }}" class="comment-profile-pic">
+    {% else %}
+        <img src="{% static 'images/default-profile.jpeg' %}" class="comment-profile-pic">
+    {% endif %}
+
+    <div class="comment-body">
+
+        <div class="comment-header">
+            <strong>{{ comment.user.first_name|default:comment.user.username }}</strong>
+            <small>{{ comment.created_at|date:"d M Y H:i" }}</small>
+        </div>
+
+        {% if comment.text %}
+        <div class="comment-text">
+            {{ comment.text }}
+        </div>
+        {% endif %}
+
+        <a class="reply-link"
+           data-comment="{{ comment.id }}"
+           data-url="{% url 'posts:comment_post' comment.post.id %}"
+           onclick="toggleReplyForm(this)">
+           Reply
+        </a>
+
+        {% if comment.children %}
+        <div class="replies">
+            {% for child in comment.children %}
+                {% include "comment.html" with comment=child %}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+    </div>
+</div>

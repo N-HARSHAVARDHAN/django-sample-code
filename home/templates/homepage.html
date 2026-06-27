@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}X | Home{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/homepage.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<main class="content">
+
+{% for post in posts %}
+
+<div class="post-card">
+
+    <div class="post-user">
+        <a href="{% url 'accounts:profile' post.user.username %}">
+
+            {% if post.user.profile_pic %}
+                <img src="{{ post.user.profile_pic.url }}" class="profile-pic">
+            {% else %}
+                <img src="{% static 'images/default-profile.jpeg' %}" class="profile-pic">
+            {% endif %}
+
+            <div class="post-meta">
+                <b>
+                    {{ post.user.first_name|default:post.user.username }}
+                </b>
+        </a>
+
+                <small>{{ post.created_at|date:"d M Y H:i" }}</small>
+            </div>
+    </div>
+
+    <div class="post-text">{{ post.content }}</div>
+
+    {% if post.image %}
+        <img src="{{ post.image.url }}" class="post-media">
+    {% endif %}
+
+    {% if post.video %}
+        <video controls class="post-media">
+            <source src="{{ post.video.url }}">
+        </video>
+    {% endif %}
+
+<div class="post-actions">
+<div>
+<span class="like-btn"
+      data-post="{{ post.id }}"
+      onclick="toggleLike(this)">
+    ❤️
+</span>
+<span class="like-count">{{ post.likes.count }}</span>
+        </div>
+
+        <img src="{% static 'images/x-commenticon.png' %}"
+             class="comment-icon"
+             onclick="toggleComments(this)">
+    </div>
+
+ <div class="comment-section">
+
+    {% for comment in post.top_comments %}
+        {% include "comment.html" with comment=comment %}
+    {% empty %}
+        <p class="no-comments">No comments yet.</p>
+    {% endfor %}
+
+</div>
+</div>
+
+{% endfor %}
+
+</main>
+
+<script src="{% static 'scripts/postActions.js' %}"></script>
+
+{% endblock %}
