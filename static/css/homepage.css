@@ -156,7 +156,7 @@ a{
     color: #e7e9ea;
 }
 
-/* REPLY LINK */
+
 .reply-link {
     display: inline-block;
     margin-top: 5px;
@@ -169,7 +169,7 @@ a{
     text-decoration: underline;
 }
 
-/* REPLY FORM */
+
 .reply-form {
     margin-top: 8px;
     display: flex;
@@ -195,7 +195,7 @@ a{
     cursor: pointer;
 }
 
-/* REPLIES (INFINITE NESTING) */
+
 .replies {
     margin-left: 20px;
     padding-left: 12px;
@@ -203,7 +203,7 @@ a{
     margin-top: 10px;
 }
 
-/* deeper nesting slightly darker line */
+
 .replies .replies {
     border-left: 1px solid #3a3f44;
 }
