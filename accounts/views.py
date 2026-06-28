@@ -26,26 +26,23 @@ def signup_view(request):
         today = date.today()
         min_date = date(today.year - 120, today.month, today.day) 
 
-        if request.method == 'POST':
-            dob = request.POST.get('dob')
-
-            if dob:
-                try:
-                    dob_parsed = date.fromisoformat(dob)
-                except ValueError:
-                    messages.error(request, "Invalid date of birth")
-                    return redirect('accounts:signup')
-
-                if dob_parsed > today:
-                    messages.error(request, "Date of birth cannot be in the future")
-                    return redirect('accounts:signup')
-
-                if dob_parsed < min_date:
-                    messages.error(request, "Please enter a valid date of birth")
-                    return redirect('accounts:signup')
-            else:
-                messages.error(request, "Date of birth is required")
+        if dob:
+            try:
+                dob_parsed = date.fromisoformat(dob)
+            except ValueError:
+                messages.error(request, "Invalid date of birth")
                 return redirect('accounts:signup')
+
+            if dob_parsed > today:
+                messages.error(request, "Date of birth cannot be in the future")
+                return redirect('accounts:signup')
+
+            if dob_parsed < min_date:
+                messages.error(request, "Please enter a valid date of birth")
+                return redirect('accounts:signup')
+        else:
+            messages.error(request, "Date of birth is required")
+            return redirect('accounts:signup')
 
         
         if User.objects.filter(username=username).exists():
