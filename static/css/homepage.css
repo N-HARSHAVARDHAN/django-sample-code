@@ -221,3 +221,59 @@ a{
     text-align: center;
     margin-top: 10px;
 }
+/* ===== PARENT COMMENT FORM ===== */
+
+.comment-form{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding-bottom:12px;
+    margin-bottom:12px;
+    border-bottom:1px solid #2f3336;
+}
+
+.comment-form input{
+    flex:1;
+    background:transparent;
+    border:none;
+    color:white;
+    font-size:15px;
+    outline:none;
+}
+
+.comment-form input::placeholder{
+    color:#71767b;
+}
+
+.comment-form button{
+    background:#1d9bf0;
+    color:white;
+    border:none;
+    border-radius:999px;
+    padding:8px 18px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.comment-form button:hover{
+    background:#1a8cd8;
+}
+.feed-tabs {
+    display: flex;
+    border-bottom: 1px solid #2f3336;
+}
+
+.feed-tabs a {
+    flex: 1;
+    text-align: center;
+    padding: 12px;
+    text-decoration: none;
+    color: #71767b;
+    font-weight: 600;
+}
+
+.feed-tabs a.active {
+    color: white;
+    border-bottom: 2px solid #1d9bf0;
+}

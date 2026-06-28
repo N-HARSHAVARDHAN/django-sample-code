@@ -44,9 +44,9 @@
                     <img src="{% static 'images/x-searchicon.png' %}">
                     <span>Search</span>
                 </a>
-                <a href="#">
+                <a href="{% url 'accounts:people' %}">
                     <img src="{% static 'images/x-followicon.png' %}">
-                    <span>Follow</span>
+                    <span>People</span>
                 </a>
                 {% if user.is_authenticated %}
                     <a href="{% url 'accounts:profile' request.user.username%}">

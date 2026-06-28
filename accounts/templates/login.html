@@ -23,7 +23,10 @@
             {% csrf_token %}
 
             <input type="text" name="username" placeholder="Username" required>
-            <input type="password" name="password" placeholder="Password" required>
+<div class="password-box">
+    <input type="password" name="password" placeholder="Password" id="password" required>
+    <span class="toggle-password" onclick="togglePassword('password', this)">👁️</span>
+</div>
             <div id="message" class="message">
                 {% for message in messages %}
                     <div class="msg {{ message.tags }}">
@@ -36,6 +39,18 @@
         <p>Don't have an account?<a href="{% url 'accounts:signup' %}">Sign up</a></p>
     </div>
 </div>
+<script>
+function togglePassword(id, eye){
+    const input = document.getElementById(id);
 
+    if(input.type === "password"){
+        input.type = "text";
+        eye.textContent = "🙈";
+    }else{
+        input.type = "password";
+        eye.textContent = "👁️";
+    }
+}
+</script>
 </body>
 </html>

@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+
 {% block title %}X | Home{% endblock %}
 
 {% block extra_css %}
@@ -7,6 +8,19 @@
 {% endblock %}
 
 {% block content %}
+
+<!-- FEED TABS -->
+<div class="feed-tabs">
+    <a href="?tab=for_you"
+       class="{% if tab == 'for_you' or not tab %}active{% endif %}">
+        For You
+    </a>
+
+    <a href="?tab=following"
+       class="{% if tab == 'following' %}active{% endif %}">
+        Following
+    </a>
+</div>
 
 <main class="content">
 
@@ -45,14 +59,14 @@
         </video>
     {% endif %}
 
-<div class="post-actions">
-<div>
-<span class="like-btn"
-      data-post="{{ post.id }}"
-      onclick="toggleLike(this)">
-    ❤️
-</span>
-<span class="like-count">{{ post.likes.count }}</span>
+    <div class="post-actions">
+        <div>
+            <span class="like-btn"
+                  data-post="{{ post.id }}"
+                  onclick="toggleLike(this)">
+                ❤️
+            </span>
+            <span class="like-count">{{ post.likes.count }}</span>
         </div>
 
         <img src="{% static 'images/x-commenticon.png' %}"
@@ -60,15 +74,29 @@
              onclick="toggleComments(this)">
     </div>
 
- <div class="comment-section">
+    <div class="comment-section">
 
-    {% for comment in post.top_comments %}
-        {% include "comment.html" with comment=comment %}
-    {% empty %}
-        <p class="no-comments">No comments yet.</p>
-    {% endfor %}
+        <form action="{% url 'posts:comment_post' post.id %}"
+              method="POST"
+              class="comment-form">
+            {% csrf_token %}
 
-</div>
+            <input type="text"
+                   name="comment"
+                   placeholder="Write a reply..."
+                   required>
+
+            <button type="submit">Reply</button>
+        </form>
+
+        {% for comment in post.top_comments %}
+            {% include "comment.html" with comment=comment %}
+        {% empty %}
+            <p class="no-comments">No comments yet.</p>
+        {% endfor %}
+
+    </div>
+
 </div>
 
 {% endfor %}

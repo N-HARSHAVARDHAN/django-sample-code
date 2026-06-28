@@ -99,14 +99,21 @@ def logout_view(request):
     return redirect("home:landingpage")
 
 @login_required
-def profile_view(request,username):
-    user_profile = get_object_or_404(User,username=username)
-    posts = Post.objects.filter(user=user_profile).prefetch_related('comments__user').order_by('-created_at')
+def profile_view(request, username):
+    user_profile = get_object_or_404(User, username=username)
+
+    posts = (
+        Post.objects
+        .filter(user=user_profile)
+        .prefetch_related('comments__user')
+        .order_by('-created_at')
+    )
 
     for post in posts:
         comments = list(post.comments.all().order_by('created_at'))
 
         comment_map = {}
+
         for c in comments:
             c.children = []
             comment_map[c.id] = c
@@ -125,10 +132,21 @@ def profile_view(request,username):
 
         post.top_comments = top_comments
 
-    return render(request,'profile.html',{
-        'user_profile':user_profile,
-        'posts':posts
+    followers_count = user_profile.followers.count()
+    following_count = user_profile.following.count()
+
+    is_following = request.user.following.filter(
+        id=user_profile.id
+    ).exists()
+
+    return render(request, 'profile.html', {
+        'user_profile': user_profile,
+        'posts': posts,
+        'followers_count': followers_count,
+        'following_count': following_count,
+        'is_following': is_following,
     })
+
 @login_required
 def edit_profile_view(request):
     if request.method =='POST':
@@ -147,3 +165,39 @@ def edit_profile_view(request):
     return render(request ,'edit_profile.html',{
         'user': request.user
     })
+
+@login_required
+def follow_user(request,user_id):
+    user_to_follow = get_object_or_404(User,id = user_id)
+    if request.user != user_to_follow:
+        if user_to_follow in request.user.following.all():
+            request.user.following.remove(user_to_follow)
+        else:
+            request.user.following.add(user_to_follow)
+    return redirect('accounts:profile' , username = user_to_follow.username)
+
+@login_required
+def followers_list(request,username):
+    user_profile = get_object_or_404(User,username=username)
+    followers = user_profile.followers.all()
+
+    return render(request,'follow_list.html',{
+        'user_profile':user_profile,
+        'users':followers,
+        'title':'followers',
+    })
+
+@login_required
+def following_list(request,username):
+    user_profile = get_object_or_404(User,username=username)
+    following= user_profile.following.all()
+    return render(request,'follow_list.html',{
+        'user_profile':user_profile,
+        'users':following,
+        'title':'following',
+    })
+
+@login_required
+def people(request):
+    users = User.objects.exclude(id=request.user.id)
+    return render(request, 'people.html', {'users': users})

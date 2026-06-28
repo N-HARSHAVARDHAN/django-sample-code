@@ -41,9 +41,21 @@
             {% endif %}
 
             {% if request.user == user_profile %}
+
                 <a href="{% url 'accounts:edit_profile' %}">
-                    <button class="edit-btn">Edit profile</button>
+                    <button class="edit-btn">Edit Profile</button>
                 </a>
+
+            {% else %}
+
+                <a href="{% url 'accounts:follow_user' user_profile.id %}">
+                    {% if is_following %}
+                        <button class="edit-btn">Following</button>
+                    {% else %}
+                        <button class="edit-btn">Follow</button>
+                    {% endif %}
+                </a>
+
             {% endif %}
 
         </div>
@@ -66,104 +78,138 @@
             Joined {{ user_profile.date_joined|date:"d F Y" }}
         </div>
 
-        <div class="follow-stats">
-            <span><b>{{ user_profile.following_count|default:0 }}</b> Following</span>
-            <span><b>{{ user_profile.followers_count|default:0 }}</b> Followers</span>
-        </div>
+<div class="follow-stats">
+
+    <a href="{% url 'accounts:following_list' user_profile.username %}" class="follow-link">
+        <b>{{ following_count }}</b> Following
+    </a>
+
+    <a href="{% url 'accounts:followers_list' user_profile.username %}" class="follow-link">
+        <b>{{ followers_count }}</b> Followers
+    </a>
+
+</div>
 
     </div>
 
-   <div class="tabs">
-    <div class="tab active" onclick="showTab('posts')">Posts</div>
-    <div class="tab" onclick="showTab('replies')">Replies</div>
-</div>
+    <div class="tabs">
+        <div class="tab active" onclick="showTab('posts')">Posts</div>
+        <div class="tab" onclick="showTab('replies')">Replies</div>
+    </div>
 
+    <div id="posts-section" class="tab-content">
+        {% if posts %}
+            {% for post in posts %}
+                <div class="post-card">
 
-<div id="posts-section" class="tab-content">
-    {% if posts %}
-        {% for post in posts %}
-            <div class="post-card">
+                    <div class="post-user">
+                        <div class="post-user-details">
 
-                <div class="post-user">
-                    <div class="post-user-details">
-                    {% if post.user.profile_pic %}
-                        <img src="{{ post.user.profile_pic.url }}" class="profile-pic">
-                    {% else %}
-                        <img src="{% static 'images/default-profile.jpeg' %}" class="profile-pic">
-                    {% endif %}
-
-                    <div class="post-meta">
-                        <b>
-                            {% if post.user.first_name %}
-                                {{ post.user.first_name }}
+                            {% if post.user.profile_pic %}
+                                <img src="{{ post.user.profile_pic.url }}" class="profile-pic">
                             {% else %}
-                                {{ post.user.username }}
+                                <img src="{% static 'images/default-profile.jpeg' %}" class="profile-pic">
                             {% endif %}
-                        </b>
 
-                        <small>{{ post.created_at|date:"d M Y H:i" }}</small>
+                            <div class="post-meta">
+                                <b>
+                                    {% if post.user.first_name %}
+                                        {{ post.user.first_name }}
+                                    {% else %}
+                                        {{ post.user.username }}
+                                    {% endif %}
+                                </b>
+
+                                <small>{{ post.created_at|date:"d M Y H:i" }}</small>
+                            </div>
+
+                        </div>
+
+                        {% if request.user == post.user %}
+                        <div class="post-options">
+                            <form action="{% url 'posts:delete_post' post.id %}" method="POST">
+                                {% csrf_token %}
+                                <button type="submit" class="delete-btn">
+                                    <img src="{% static 'images/x-deleteicon.png' %}" class="x-delete-icon">
+                                </button>
+                            </form>
+                        </div>
+                        {% endif %}
+
                     </div>
+
+                    <div class="post-text">
+                        {{ post.content }}
                     </div>
-                    {% if request.user == post.user %}
-                    <div class="post-options">
-                        <form action="{% url 'posts:delete_post' post.id %}" method="POST">
-                            {% csrf_token %}
-                            <button type="submit" class="delete-btn"><img src="{% static 'images/x-deleteicon.png' %}" class="x-delete-icon"></button>
-                        </form>
-                    </div>
+
+                    {% if post.image %}
+                        <img src="{{ post.image.url }}" class="post-media">
                     {% endif %}
-                </div>
 
-                <div class="post-text">
-                    {{ post.content }}
-                </div>
+                    {% if post.video %}
+                        <video controls class="post-media">
+                            <source src="{{ post.video.url }}">
+                        </video>
+                    {% endif %}
 
-                {% if post.image %}
-                    <img src="{{ post.image.url }}" class="post-media">
-                {% endif %}
+                    <div class="post-actions">
 
-                {% if post.video %}
-                    <video controls class="post-media">
-                        <source src="{{ post.video.url }}">
-                    </video>
-                {% endif %}
-  <div class="post-actions">
-<div>
-<span class="like-btn"
-      data-post="{{ post.id }}"
-      onclick="toggleLike(this)">
-    ❤️
-</span>
-<span class="like-count">{{ post.likes.count }}</span>
-        </div>
-      <img src="{% static 'images/x-commenticon.png' %}" class="comment-icon" onclick="toggleComments(this)">
-</div>
+                        <div>
+                            <span class="like-btn"
+                                  data-post="{{ post.id }}"
+                                  onclick="toggleLike(this)">
+                                ❤️
+                            </span>
+
+                            <span class="like-count">
+                                {{ post.likes.count }}
+                            </span>
+                        </div>
+
+                        <img src="{% static 'images/x-commenticon.png' %}"
+                             class="comment-icon"
+                             onclick="toggleComments(this)">
+
+                    </div>
 
 <div class="comment-section">
 
-    <div class="comments">
+    <form action="{% url 'posts:comment_post' post.id %}" method="POST" class="comment-form">
+        {% csrf_token %}
 
-        {% for comment in post.top_comments %}
-            {% include "comment.html" with comment=comment %}
-        {% empty %}
-            <p class="no-comments">No comments yet.</p>
-        {% endfor %}
+        <input
+            type="text"
+            name="comment"
+            placeholder="Write a reply..."
+            required
+        >
 
+        <button type="submit">Reply</button>
+    </form>
+
+    {% for comment in post.top_comments %}
+        {% include "comment.html" with comment=comment %}
+    {% empty %}
+        <p class="no-comments">No comments yet.</p>
+    {% endfor %}
+
+</div>
+
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No posts yet</p>
+        {% endif %}
+    </div>
+
+    <div id="replies-section" class="tab-content" style="display:none;">
+        <p>No replies yet</p>
     </div>
 
 </div>
-            </div>
-        {% endfor %}
-    {% else %}
-        <p>No posts yet</p>
-    {% endif %}
-</div>
 
-
-<div id="replies-section" class="tab-content" style="display:none;">
-    <p>No replies yet</p>
-</div>
 <script src="{% static 'scripts/postActions.js' %}"></script>
+
 <script>
 function showTab(tab) {
 
@@ -178,7 +224,7 @@ function showTab(tab) {
         posts.style.display = "block";
         replies.style.display = "none";
         tabs[0].classList.add("active");
-    } 
+    }
     else {
         posts.style.display = "none";
         replies.style.display = "block";
@@ -186,4 +232,5 @@ function showTab(tab) {
     }
 }
 </script>
+
 {% endblock %}

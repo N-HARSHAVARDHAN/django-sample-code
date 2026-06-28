@@ -28,9 +28,15 @@
                     <input type="text" name="username" placeholder="Username" required>
 
                     <input type="email" name="email" placeholder="Email" required>
+<div class="password-box">
+    <input type="password" name="password" placeholder="Password" id="password" required>
+    <span class="toggle-password" onclick="togglePassword('password', this)">👁️</span>
+</div>
 
-                    <input type="password" name="password" placeholder="Password" id="password"required>
-                    <input type="password" name="confirmPassword" placeholder="Confirm Password" id="confirmPassword" required>
+<div class="password-box">
+    <input type="password" name="confirmPassword" placeholder="Confirm Password" id="confirmPassword" required>
+    <span class="toggle-password" onclick="togglePassword('confirmPassword', this)">👁️</span>
+</div>
                     <input
                         type="date"
                         name="dob"
@@ -56,5 +62,18 @@
 
         </div>
         </div>
+        <script>
+function togglePassword(id, eye){
+    const input = document.getElementById(id);
+
+    if(input.type === "password"){
+        input.type = "text";
+        eye.textContent = "🙈";
+    }else{
+        input.type = "password";
+        eye.textContent = "👁️";
+    }
+}
+        </script>
     </body>
 </html>

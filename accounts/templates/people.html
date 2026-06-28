@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/people.css' %}">
+{% endblock %}
+{% block content %}
+
+<h2 class="page-title">People</h2>
+
+<div class="people-list">
+
+    {% for user in users %}
+
+    <div class="person-card">
+
+        <div class="person-info">
+            {% if user.profile_pic %}
+                <img src="{{ user.profile_pic.url }}" class="profile-pic">
+            {% else %}
+                <img src="{% static 'images/default-profile.jpeg' %}" class="profile-pic">
+            {% endif %}
+
+            <div>
+                <b>{{ user.username }}</b>
+                <p>{{ user.bio|default:"No bio" }}</p>
+            </div>
+        </div>
+
+        <a href="{% url 'accounts:follow_user' user.id %}" class="follow-btn">
+            {% if user in request.user.following.all %}
+                Unfollow
+            {% else %}
+                Follow
+            {% endif %}
+        </a>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}

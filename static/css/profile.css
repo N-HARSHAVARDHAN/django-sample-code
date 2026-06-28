@@ -117,16 +117,21 @@ body {
 .follow-stats {
     display: flex;
     gap: 20px;
-    font-size: 14px;
-    margin-bottom: 16px;
+    margin-top: 12px;
 }
 
-.follow-stats span {
+.follow-link {
+    text-decoration: none;
     color: #71767b;
+    font-size: 15px;
 }
 
-.follow-stats b {
-    color: #fff;
+.follow-link b {
+    color: white;
+}
+
+.follow-link:hover {
+    text-decoration: underline;
 }
 
 /* TABS */
@@ -371,6 +376,42 @@ body {
     color: #71767b;
     text-align: center;
     margin-top: 10px;
+}
+.comment-form{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding-bottom:12px;
+    margin-bottom:12px;
+    border-bottom:1px solid #2f3336;
+}
+
+.comment-form input{
+    flex:1;
+    background:transparent;
+    border:none;
+    color:white;
+    font-size:15px;
+    outline:none;
+}
+
+.comment-form input::placeholder{
+    color:#71767b;
+}
+
+.comment-form button{
+    background:#1d9bf0;
+    color:white;
+    border:none;
+    border-radius:999px;
+    padding:8px 18px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.comment-form button:hover{
+    background:#1a8cd8;
 }
 @media (max-width: 500px) {
     .profile-header .profile-pic {
