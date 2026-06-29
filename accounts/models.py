@@ -8,3 +8,4 @@ class User(AbstractUser):
     dob = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     following = models.ManyToManyField('self',symmetrical = False , related_name = 'followers', blank = True)
+    is_verified = models.BooleanField(default=False)

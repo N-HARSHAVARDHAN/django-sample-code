@@ -1,8 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 
 # Create your views here.
 
-from django.shortcuts import render,redirect
 from django.contrib.auth import authenticate , login , logout 
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -22,7 +21,6 @@ def signup_view(request):
         first_name = request.POST.get('first_name', '').strip()
         last_name = request.POST.get('last_name', '').strip()
         dob = request.POST.get('dob')
-
         today = date.today()
         min_date = date(today.year - 120, today.month, today.day) 
 
@@ -43,12 +41,10 @@ def signup_view(request):
         else:
             messages.error(request, "Date of birth is required")
             return redirect('accounts:signup')
-
         
         if User.objects.filter(username=username).exists():
             messages.error(request, "Username already exists")
             return redirect('accounts:signup')
-
         
         if User.objects.filter(email=email).exists():
             messages.error(request, "Email already exists")
@@ -59,8 +55,7 @@ def signup_view(request):
         except ValidationError as e:
             messages.error(request, e.messages[0])
             return redirect('accounts:signup')
-
-        
+       
         User.objects.create_user(
             username=username,
             email=email,
@@ -69,7 +64,6 @@ def signup_view(request):
             last_name=last_name,
             dob=dob,
         )
-
         messages.success(request, "Account created successfully Please login to continue")
         return redirect('accounts:login')
 
@@ -79,7 +73,6 @@ def login_view(request):
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
-
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
@@ -98,8 +91,7 @@ def logout_view(request):
 @login_required
 def profile_view(request, username):
     user_profile = get_object_or_404(User, username=username)
-
-    posts = (
+    posts = ( 
         Post.objects
         .filter(user=user_profile)
         .prefetch_related('comments__user')
@@ -108,7 +100,6 @@ def profile_view(request, username):
 
     for post in posts:
         comments = list(post.comments.all().order_by('created_at'))
-
         comment_map = {}
 
         for c in comments:
@@ -131,7 +122,6 @@ def profile_view(request, username):
 
     followers_count = user_profile.followers.count()
     following_count = user_profile.following.count()
-
     is_following = request.user.following.filter(
         id=user_profile.id
     ).exists()
