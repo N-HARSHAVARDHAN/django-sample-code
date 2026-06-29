@@ -6,7 +6,8 @@ from django.contrib.auth import authenticate , login , logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from accounts.models import User 
-from posts.models import Post
+from .models import VerificationRequest
+from posts.models import Post,Repost,Like,Bookmark
 from datetime import date
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
@@ -88,40 +89,96 @@ def logout_view(request):
     logout(request)
     return redirect("home:landingpage")
 
+
 @login_required
 def profile_view(request, username):
     user_profile = get_object_or_404(User, username=username)
-    posts = ( 
+
+    posts = (
         Post.objects
         .filter(user=user_profile)
         .prefetch_related('comments__user')
         .order_by('-created_at')
     )
 
+    reposts = (
+        Repost.objects
+        .filter(user=user_profile)
+        .select_related("post", "post__user")
+        .order_by("-created_at")
+    )
+
     for post in posts:
-        comments = list(post.comments.all().order_by('created_at'))
-        comment_map = {}
+        all_comments = list(post.comments.all().order_by('created_at'))
 
-        for c in comments:
-            c.children = []
-            comment_map[c.id] = c
-
+        comment_map = {c.id: c for c in all_comments}
+        children_map = {}
         top_comments = []
 
-        for c in comments:
-            if c.parent_id:
-                parent = comment_map.get(c.parent_id)
-                if parent:
-                    parent.children.append(c)
-                else:
-                    top_comments.append(c)
-            else:
+        for c in all_comments:
+            c.reply_to = comment_map.get(c.parent_id) if c.parent_id else None
+
+            if c.parent_id is None:
                 top_comments.append(c)
+            else:
+                children_map.setdefault(c.parent_id, []).append(c)
+
+        def collect_descendants(comment_id):
+            result = []
+
+            for child in children_map.get(comment_id, []):
+                result.append(child)
+                result.extend(collect_descendants(child.id))
+
+            return result
+
+        for c in top_comments:
+            descendants = collect_descendants(c.id)
+            descendants.sort(key=lambda x: x.created_at)
+            c.ui_replies = descendants
 
         post.top_comments = top_comments
 
+    # -------------------------------
+    # Build profile feed
+    # -------------------------------
+
+    profile_feed = []
+
+    for post in posts:
+        profile_feed.append({
+            "type": "post",
+            "created_at": post.created_at,
+            "post": post,
+        })
+
+    for repost in reposts:
+        profile_feed.append({
+            "type": "repost",
+            "created_at": repost.created_at,
+            "post": repost.post,
+            "reposted_by": repost.user,
+        })
+
+    profile_feed.sort(
+        key=lambda item: item["created_at"],
+        reverse=True
+    )
+
+    # --- NEW: attach like/repost/bookmark state for current viewer ---
+    liked_ids = set(Like.objects.filter(user=request.user).values_list('post_id', flat=True))
+    reposted_ids = set(Repost.objects.filter(user=request.user).values_list('post_id', flat=True))
+    bookmarked_ids = set(Bookmark.objects.filter(user=request.user).values_list('post_id', flat=True))
+
+    for item in profile_feed:
+        post = item["post"]
+        post.user_has_liked = post.id in liked_ids
+        post.user_has_reposted = post.id in reposted_ids
+        post.user_has_bookmarked = post.id in bookmarked_ids
+
     followers_count = user_profile.followers.count()
     following_count = user_profile.following.count()
+
     is_following = request.user.following.filter(
         id=user_profile.id
     ).exists()
@@ -129,6 +186,7 @@ def profile_view(request, username):
     return render(request, 'profile.html', {
         'user_profile': user_profile,
         'posts': posts,
+        'profile_feed': profile_feed,
         'followers_count': followers_count,
         'following_count': following_count,
         'is_following': is_following,
@@ -188,3 +246,34 @@ def following_list(request,username):
 def people(request):
     users = User.objects.exclude(id=request.user.id)
     return render(request, 'people.html', {'users': users})
+
+
+@login_required
+def request_verification(request):
+    user = request.user
+
+    if user.verification_status in ['none', 'rejected']:
+        user.verification_status = 'pending'
+        user.save()
+
+    return redirect('accounts:profile', username=user.username)
+
+from django.shortcuts import render
+from django.db.models import Q
+from .models import User
+
+def search_page(request):
+    query = request.GET.get('q', '')
+    users = []
+
+    if query:
+        users = User.objects.filter(
+            Q(username__icontains=query) |
+            Q(first_name__icontains=query) |
+            Q(bio__icontains=query)
+        )
+
+    return render(request, 'search.html', {
+        'users': users,
+        'query': query
+    })

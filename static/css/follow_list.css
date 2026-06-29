@@ -21,7 +21,12 @@
 .user-card:hover{
     background:#080808;
 }
+.bluetick-icon {
+    width: 20px;
+    height: 20px;
+    background: transparent;
 
+}
 .profile-pic{
     width:48px;
     height:48px;

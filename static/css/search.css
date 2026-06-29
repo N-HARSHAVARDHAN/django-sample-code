@@ -1,0 +1,98 @@
+.search-page {
+    max-width: 600px;
+    margin: auto;
+    padding: 20px;
+    color: white;
+}
+
+/* SEARCH BAR */
+.search-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.search-bar input {
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 20px;
+    border: 1px solid #2f3336;
+    background: #000;
+    color: white;
+    outline: none;
+}
+
+.search-bar button {
+    padding: 10px 16px;
+    border-radius: 20px;
+    border: none;
+    background: #1d9bf0;
+    color: white;
+    cursor: pointer;
+}
+
+/* RESULT CARD */
+.user-card {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    border-bottom: 1px solid #2f3336;
+    text-decoration: none;
+    color: white;
+}
+
+.user-card:hover {
+    background: #111;
+}
+
+.user-card .profile-pic {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* USER INFO */
+.user-info {
+    flex: 1;
+}
+
+.name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.name-row b {
+    font-size: 15px;
+}
+
+.name-row small {
+    color: #71767b;
+}
+
+/* BLUE TICK */
+.bluetick-icon {
+    width: 16px;
+    height: 16px;
+    filter: invert(1);
+}
+
+/* BIO */
+.bio {
+    font-size: 13px;
+    color: #71767b;
+    margin-top: 3px;
+}
+
+.muted {
+    opacity: 0.6;
+}
+
+/* EMPTY */
+.no-results,
+.hint {
+    text-align: center;
+    color: #71767b;
+    margin-top: 20px;
+}

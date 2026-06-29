@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Search{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/search.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="search-page">
+
+    <!-- SEARCH BAR -->
+    <form method="GET" action="{% url 'accounts:search_page' %}" class="search-bar">
+        <input type="text"
+               name="q"
+               placeholder="Search users..."
+               value="{{ query }}">
+
+        <button type="submit">Search</button>
+    </form>
+
+    <!-- RESULTS -->
+    <div class="results">
+
+        {% for user in users %}
+
+        <a href="{% url 'accounts:profile' user.username %}" class="user-card">
+
+            {% if user.profile_pic %}
+                <img src="{{ user.profile_pic.url }}" class="profile-pic">
+            {% else %}
+                <img src="{% static 'images/default-profile.jpeg' %}" class="profile-pic">
+            {% endif %}
+
+            <div class="user-info">
+
+                <div class="name-row">
+                    <b>
+                        {{ user.first_name|default:user.username }}
+
+                        {% if user.verification_status == 'approved' %}
+                            <img src="{% static 'images/x-bluetickicon.png' %}" class="bluetick-icon">
+                        {% endif %}
+                    </b>
+
+                    <small>@{{ user.username }}</small>
+                </div>
+
+                {% if user.bio %}
+                    <p class="bio">{{ user.bio }}</p>
+                {% else %}
+                    <p class="bio muted">No bio</p>
+                {% endif %}
+
+            </div>
+
+        </a>
+
+        {% empty %}
+            {% if query %}
+                <p class="no-results">No users found</p>
+            {% else %}
+                <p class="hint">Search users by name or username</p>
+            {% endif %}
+        {% endfor %}
+
+    </div>
+
+</div>
+
+{% endblock %}

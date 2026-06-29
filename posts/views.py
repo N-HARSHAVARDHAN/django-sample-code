@@ -1,8 +1,9 @@
 from django.shortcuts import render,redirect
 from django.shortcuts import get_object_or_404,redirect
 from django.contrib.auth.decorators import login_required
-from .models import Post,Like,Comment
+from .models import Post,Like,Comment,Repost,Bookmark
 from django.http import JsonResponse
+from django.template.loader import render_to_string
 # Create your views here.
 
 def create_post(request):
@@ -38,21 +39,73 @@ def like_post(request, post_id):
         "liked": liked,
         "count": post.likes.count()
     })
-@login_required
-def comment_post(request,post_id):
-    if request.method =='POST':
-        post = get_object_or_404(Post,id = post_id)
-        text = request.POST.get('comment')
-        parent_id = request.POST.get('parent_id')
-        if text:
-            Comment.objects.create(
-                user = request.user,
-                post = post,
-                text=text,
-                parent_id = parent_id if parent_id else None
-            )
-    return redirect(request.META.get('HTTP_REFERER','home:homepage'))
 
+@login_required
+def repost_post(request, post_id):
+
+    post = get_object_or_404(Post, id=post_id)
+
+    repost = Repost.objects.filter(
+        user=request.user,
+        post=post
+    ).first()
+
+    if repost:
+        repost.delete()
+        reposted = False
+    else:
+        Repost.objects.create(
+            user=request.user,
+            post=post
+        )
+        reposted = True
+
+    return JsonResponse({
+        "reposted": reposted,
+        "count": post.reposts.count()
+    })
+
+@login_required
+def comment_post(request, post_id):
+    if request.method == "POST":
+
+        post = get_object_or_404(Post, id=post_id)
+
+        text = request.POST.get("comment")
+        parent_id = request.POST.get("parent_id")
+
+        if text:
+            parent = get_object_or_404(Comment, id=parent_id) if parent_id else None
+
+            comment = Comment.objects.create(
+                user=request.user,
+                post=post,
+                text=text,
+                parent=parent
+            )
+
+            comment.reply_to = parent
+            is_reply = parent is not None
+            # the top-level ancestor this reply should visually nest under
+            parent_top_id = (parent.parent_id or parent.id) if parent else None
+
+            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+                html = render_to_string(
+                    "comment.html",
+                    {
+                        "comment": comment,
+                        "is_reply": is_reply,
+                    },
+                    request=request
+                )
+                return JsonResponse({
+                    "success": True,
+                    "html": html,
+                    "is_reply": is_reply,
+                    "parent_top_id": parent_top_id,
+                })
+
+    return redirect(request.META.get("HTTP_REFERER", "home:homepage"))
 @login_required
 def delete_post(request,post_id):
     post = get_object_or_404(Post,id = post_id)
@@ -61,3 +114,106 @@ def delete_post(request,post_id):
         return redirect('home:homepage')
     post.delete()
     return redirect(request.META.get('HTTP_REFERER','home:homepage'))
+
+@login_required
+def delete_comment(request, comment_id):
+
+    if request.method != "POST":
+        return JsonResponse({"success": False}, status=405)
+
+    comment = get_object_or_404(
+        Comment,
+        id=comment_id,
+        user=request.user
+    )
+
+    comment.delete()
+
+    return JsonResponse({
+        "success": True,
+        "comment_id": comment_id
+    })
+
+@login_required
+def edit_comment(request, comment_id):
+
+    if request.method != "POST":
+        return JsonResponse({"success": False}, status=405)
+
+    comment = get_object_or_404(
+        Comment,
+        id=comment_id,
+        user=request.user
+    )
+
+    text = request.POST.get("text", "").strip()
+
+    if not text:
+        return JsonResponse({
+            "success": False,
+            "error": "Comment cannot be empty."
+        })
+
+    comment.text = text
+    comment.save()
+
+    return JsonResponse({
+        "success": True,
+        "text": comment.text
+    })
+
+@login_required
+def post_detail(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+
+    return render(request, "post_detail.html", {
+        "post": post,
+    })
+
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def toggle_bookmark(request, post_id):
+    post = Post.objects.get(id=post_id)
+
+    bookmark, created = Bookmark.objects.get_or_create(
+        user=request.user,
+        post=post
+    )
+
+    if not created:
+        bookmark.delete()
+        return JsonResponse({"status": "removed"})
+
+    return JsonResponse({"status": "bookmarked"})
+
+@login_required
+def bookmarks(request):
+    bookmarks = Bookmark.objects.filter(user=request.user).select_related('post')
+
+    posts = [b.post for b in bookmarks]
+
+    return render(request, "bookmarks.html", {
+        "posts": posts
+    })
+
+@login_required
+def edit_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+
+    # must be owner
+    if request.user != post.user:
+        return redirect('home:homepage')
+
+    # must be verified
+    if request.user.verification_status != "approved":
+        return HttpResponseForbidden("Only verified users can edit posts")
+
+    if request.method == "POST":
+        content = request.POST.get("content")
+        post.content = content
+        post.save()
+        return redirect('home:homepage')
+
+    return render(request, "edit_post.html", {"post": post})

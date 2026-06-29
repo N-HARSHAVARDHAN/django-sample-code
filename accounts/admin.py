@@ -1,5 +1,11 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
-from .models import User
+from .models import User, VerificationRequest
 
-admin.site.register(User, UserAdmin)
+
+@admin.register(VerificationRequest)
+class VerificationRequestAdmin(admin.ModelAdmin):
+    list_display = ("user", "status", "created_at")
+    list_filter = ("status",)
+
+    # No actions, no custom logic here
+    # Everything handled in model.save()

@@ -1,38 +1,87 @@
 {% load static %}
 
-<div class="comment">
+<div class="comment {% if is_reply %}is-reply{% endif %}" id="comment-{{ comment.id }}">
 
-    {% if comment.user.profile_pic %}
-        <img src="{{ comment.user.profile_pic.url }}" class="comment-profile-pic">
-    {% else %}
-        <img src="{% static 'images/default-profile.jpeg' %}" class="comment-profile-pic">
-    {% endif %}
+    <a href="{% url 'accounts:profile' comment.user.username %}">
+        {% if comment.user.profile_pic %}
+            <img src="{{ comment.user.profile_pic.url }}" class="comment-profile-pic">
+        {% else %}
+            <img src="{% static 'images/default-profile.jpeg' %}" class="comment-profile-pic">
+        {% endif %}
+    </a>
 
     <div class="comment-body">
 
         <div class="comment-header">
-            <strong>{{ comment.user.first_name|default:comment.user.username }}</strong>
-            <small>{{ comment.created_at|date:"d M Y H:i" }}</small>
+            <a href="{% url 'accounts:profile' comment.user.username %}">
+                <strong>{{ comment.user.first_name|default:comment.user.username }}</strong>
+            </a>
+
+            <span class="comment-username">@{{ comment.user.username }}</span>
+            <small>· {{ comment.created_at|date:"d M" }}</small>
         </div>
 
-        {% if comment.text %}
-        <div class="comment-text">
-            {{ comment.text }}
+        {% if comment.reply_to %}
+        <div class="reply-context">
+            Replying to
+            <a href="{% url 'accounts:profile' comment.reply_to.user.username %}">
+                @{{ comment.reply_to.user.username }}
+            </a>
         </div>
         {% endif %}
 
-        <a class="reply-link"
-           data-comment="{{ comment.id }}"
-           data-url="{% url 'posts:comment_post' comment.post.id %}"
-           onclick="toggleReplyForm(this)">
-           Reply
-        </a>
+        <div class="comment-text">
+            {{ comment.text }}
+        </div>
 
-        {% if comment.children %}
-        <div class="replies">
-            {% for child in comment.children %}
-                {% include "comment.html" with comment=child %}
-            {% endfor %}
+        <div class="comment-actions">
+
+            <a class="reply-link"
+               data-comment="{{ comment.id }}"
+               data-url="{% url 'posts:comment_post' comment.post.id %}"
+               onclick="toggleReplyForm(this)">
+                Reply
+            </a>
+
+            {% if request.user == comment.user %}
+
+                <button type="button"
+                        class="comment-edit-btn"
+                        data-comment="{{ comment.id }}"
+                        data-url="{% url 'posts:edit_comment' comment.id %}">
+                    Edit
+                </button>
+
+                <button type="button"
+                        class="comment-delete-btn"
+                        data-comment="{{ comment.id }}"
+                        data-url="{% url 'posts:delete_comment' comment.id %}">
+                    Delete
+                </button>
+
+            {% endif %}
+
+        </div>
+
+        {% if not is_reply and comment.ui_replies %}
+        <div class="replies-wrapper" data-top="{{ comment.id }}">
+
+            <button type="button"
+                    class="show-replies"
+                    onclick="toggleReplies(this)">
+                ⌄ View {{ comment.ui_replies|length }} reply{{ comment.ui_replies|length|pluralize }}
+            </button>
+
+            <div class="replies-container"
+                 id="replies-{{ comment.id }}"
+                 style="display:none;">
+
+                {% for reply in comment.ui_replies %}
+                    {% include "comment.html" with comment=reply is_reply=True %}
+                {% endfor %}
+
+            </div>
+
         </div>
         {% endif %}
 

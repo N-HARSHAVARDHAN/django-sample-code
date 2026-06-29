@@ -15,7 +15,7 @@ a{
     color:inherit;
 }
 
-/* ===== LAYOUT ===== */
+
 .content{
     flex:1;
     display:flex;
@@ -28,7 +28,7 @@ a{
     margin:auto;
 }
 
-/* ===== POST ===== */
+
 .post-card {
     padding: 14px;
     text-align: left;
@@ -88,19 +88,74 @@ a{
 }
 
 .like-btn,
-.comment-icon {
+.comment-icon,.retweet-icon ,.share-icon ,.bookmark-icon{
     height: 20px;
     width: 20px;
     cursor: pointer;
 }
-.comment-icon {
+.comment-icon ,.retweet-icon ,.share-icon , .bookmark-icon{
     filter: invert(1);
+}
+.bluetick-icon {
+    width: 20px;
+    height: 20px;
+    background: transparent;
+
 }
 .like-count {
     margin-left: 5px;
 }
+.options-wrapper {
+    position: relative;
+    display: inline-block;
+    background: transparent; /* remove grey box */
+}
 
-/* ===== COMMENT SYSTEM ===== */
+.options-btn {
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 50%;
+    color: white; /* makes ⋯ visible */
+    line-height: 1;
+}
+
+.options-btn:hover {
+    background: rgba(255, 255, 255, 0.08); /* subtle hover like X */
+}
+
+.options-menu {
+    position: absolute;
+    right: 0;
+    top: 28px;
+    background: #000;
+    border: 1px solid #2f3336;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    min-width: 140px;
+    overflow: hidden;
+    z-index: 100;
+}
+
+.edit-option {
+    display: block;
+    padding: 10px 12px;
+    text-decoration: none;
+    color: white;
+    font-size: 14px;
+}
+
+
+.edit-option {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color:white;
+    font-size: 14px;
+}
+
 .comment-section {
     margin-top: 15px;
     border-top: 1px solid #2f3336;
@@ -114,7 +169,7 @@ a{
     gap: 14px;
 }
 
-/* COMMENT */
+
 .comment {
     display: flex;
     gap: 10px;
@@ -215,13 +270,13 @@ a{
     border-radius: 8px;
 }
 
-/* EMPTY STATE */
+
 .no-comments {
     color: #71767b;
     text-align: center;
     margin-top: 10px;
 }
-/* ===== PARENT COMMENT FORM ===== */
+
 
 .comment-form{
     display:flex;
@@ -276,4 +331,235 @@ a{
 .feed-tabs a.active {
     color: white;
     border-bottom: 2px solid #1d9bf0;
+}
+.comment {
+    display: flex;
+    gap: 12px;
+    padding: 12px 4px;
+    position: relative;
+}
+
+.comment-avatar-col {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 40px;
+    flex-shrink: 0;
+}
+
+.comment-profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    z-index: 1;
+}
+
+.is-reply .comment-profile-pic {
+    width: 32px;
+    height: 32px;
+}
+
+/* the connecting line itself */
+.thread-line {
+    position: absolute;
+    width: 2px;
+    background: #2f3336;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* line going up from a reply's avatar to the one above it */
+.is-reply .thread-line:not(.thread-line-down) {
+    top: -12px;
+    height: calc(50% + 12px);
+}
+
+/* line going down from a comment that itself has replies */
+.thread-line-down {
+    top: 50%;
+    bottom: -12px;
+    height: auto;
+}
+
+.comment-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.comment-header {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.comment-username,
+.comment-header small {
+    color: #71767b;
+    font-size: 14px;
+}
+
+.comment-text {
+    margin-top: 2px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.reply-link {
+    display: inline-block;
+    margin-top: 6px;
+    font-size: 13px;
+    color: #71767b;
+    cursor: pointer;
+}
+
+.reply-link:hover {
+    color: #1d9bf0;
+}
+
+/* "View replies" button styled like X */
+.show-replies {
+    background: none;
+    border: none;
+    color: #1d9bf0;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.show-replies:hover {
+    text-decoration: underline;
+}
+
+.replies-container {
+    margin-top: 4px;
+}
+
+/* replies no longer get the old margin-left:40px box look,
+   they sit flush under the parent, line does the indicating */
+.replies-container .comment {
+    padding-left: 0;
+}
+.comment-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 6px;
+}
+
+.comment-actions .reply-link,
+.comment-edit-btn,
+.comment-delete-btn,
+.save-comment-btn,
+.cancel-comment-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: #71767b;
+    cursor: pointer;
+    transition: color 0.15s ease;
+}
+
+.comment-actions .reply-link:hover,
+.comment-edit-btn:hover {
+    color: #1d9bf0;
+}
+
+.comment-delete-btn:hover {
+    color: #f4212e;
+}
+
+/* Save / Cancel pair shown during edit mode */
+.save-comment-btn {
+    color: #1d9bf0;
+    font-weight: 600;
+}
+
+.save-comment-btn:hover {
+    text-decoration: underline;
+}
+
+.cancel-comment-btn:hover {
+    color: #e7e9ea;
+}
+
+/* Edit textarea replacing comment-text while editing */
+.comment-edit-input {
+    width: 100%;
+    min-height: 60px;
+    margin-top: 4px;
+    padding: 8px 10px;
+    background: #16181c;
+    border: 1px solid #2f3336;
+    border-radius: 12px;
+    color: #e7e9ea;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+}
+
+.comment-edit-input:focus {
+    outline: none;
+    border-color: #1d9bf0;
+}
+.share-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.share-menu {
+    position: absolute;
+    right: 0;
+    top: 25px;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 120px;
+    z-index: 100;
+}
+
+.share-menu button {
+    background: none;
+    border: none;
+    color: white;
+    padding: 6px;
+    text-align: left;
+    cursor: pointer;
+}
+
+.share-menu button:hover {
+    background: #222;
+}
+.post-user{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+}
+
+.user-left{
+    display:flex;
+    gap:10px;
+    align-items:center;
+}
+.like-btn.active { color: #f91880; }
+.like-btn:not(.active) { filter: grayscale(1) opacity(0.7); }
+
+.repost-btn.active .retweet-icon {
+    filter: invert(1) sepia(79%) saturate(2476%) hue-rotate(86deg) brightness(118%) contrast(119%);
+}
+
+.bookmark-btn.active .bookmark-icon {
+    filter: invert(53%) sepia(94%) saturate(1352%) hue-rotate(176deg) brightness(101%) contrast(101%);
 }

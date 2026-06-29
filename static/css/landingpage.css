@@ -25,14 +25,13 @@ body{
     display:flex;
 }
 
-/* push the logo toward the right edge of its half */
 .right{
     justify-content:flex-end;
     align-items:center;
     padding-right:4vw;
 }
 
-/* push the text toward the left edge of its half */
+
 .left{
     justify-content:flex-start;
     align-items:center;

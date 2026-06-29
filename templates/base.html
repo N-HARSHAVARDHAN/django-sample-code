@@ -40,7 +40,7 @@
                     <img src="{% static 'images/x-homeicon.png' %}">
                     <span>Home</span>
                 </a>
-                <a href="#">
+                <a href="{% url 'accounts:search_page' %}">
                     <img src="{% static 'images/x-searchicon.png' %}">
                     <span>Search</span>
                 </a>
@@ -48,6 +48,11 @@
                     <img src="{% static 'images/x-followicon.png' %}">
                     <span>People</span>
                 </a>
+                <a href="{% url 'posts:bookmarks' %}">
+           <img src="{% static 'images/x-bookmarkicon.png' %}">
+                    <span>Bookmarks</span>
+                </a>
+</a>
                 {% if user.is_authenticated %}
                     <a href="{% url 'accounts:profile' request.user.username%}">
                         <img src="{% static 'images/x-profileicon.png' %}">

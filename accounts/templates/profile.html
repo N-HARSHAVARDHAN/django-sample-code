@@ -22,8 +22,27 @@
             </h3>
             <small>{{ posts.count }} posts</small>
         </div>
-    </div>
+    {% if request.user == user_profile %}
 
+    {% if user_profile.verification_status == 'none' or user_profile.verification_status == 'rejected' %}
+
+        <form method="POST" action="{% url 'accounts:request_verification' %}">
+            {% csrf_token %}
+            <button class="edit-btn">Get Verified</button>
+        </form>
+
+    {% elif user_profile.verification_status == 'pending' %}
+
+        <button class="edit-btn" disabled>Verification Pending...</button>
+
+    {% elif user_profile.verification_status == 'approved' %}
+
+        <button class="edit-btn" disabled>Verified ✔</button>
+
+    {% endif %}
+
+{% endif %}
+    </div>
     <div class="banner">
         {% if user_profile.banner_pic %}
             <img src="{{ user_profile.banner_pic.url }}" class="banner-img">
@@ -32,33 +51,37 @@
 
     <div class="profile-info">
 
-        <div class="profile-header">
+<div class="profile-header">
 
-            {% if user_profile.profile_pic %}
-                <img src="{{ user_profile.profile_pic.url }}" class="profile-pic">
+    {% if user_profile.profile_pic %}
+        <img src="{{ user_profile.profile_pic.url }}" class="profile-pic">
+    {% else %}
+        <img src="{% static 'images/default-profile.jpeg' %}" class="profile-pic">
+    {% endif %}
+
+    {% if request.user == user_profile %}
+
+        <a href="{% url 'accounts:edit_profile' %}">
+            <button class="edit-btn">Edit Profile</button>
+        </a>
+
+    {% else %}
+
+        <a href="{% url 'accounts:follow_user' user_profile.id %}">
+            {% if is_following %}
+                <button class="edit-btn">Following</button>
             {% else %}
-                <img src="{% static 'images/default-profile.jpeg' %}" class="profile-pic">
+                <button class="edit-btn">Follow</button>
             {% endif %}
+        </a>
 
-            {% if request.user == user_profile %}
+        {% if user_profile.is_verified %}
+            <span class="verified-badge">✔ Verified</span>
+        {% endif %}
 
-                <a href="{% url 'accounts:edit_profile' %}">
-                    <button class="edit-btn">Edit Profile</button>
-                </a>
+    {% endif %}
 
-            {% else %}
-
-                <a href="{% url 'accounts:follow_user' user_profile.id %}">
-                    {% if is_following %}
-                        <button class="edit-btn">Following</button>
-                    {% else %}
-                        <button class="edit-btn">Follow</button>
-                    {% endif %}
-                </a>
-
-            {% endif %}
-
-        </div>
+</div>
 
         <h2 class="display-name">
             {% if user_profile.first_name %}
@@ -66,8 +89,11 @@
             {% else %}
                 {{ user_profile.username }}
             {% endif %}
-        </h2>
 
+{% if user_profile.verification_status == 'approved' %}
+    <span class="blue-tick"><img src="{% static 'images/x-bluetickicon.png' %}"
+             class="bluetick-icon"></span>
+{% endif %}
         <p class="handle">@{{ user_profile.username }}</p>
 
         {% if user_profile.bio %}
@@ -98,10 +124,18 @@
     </div>
 
     <div id="posts-section" class="tab-content">
-        {% if posts %}
-            {% for post in posts %}
-                <div class="post-card">
+{% if profile_feed %}
+    {% for item in profile_feed %}
+        {% with post=item.post %}
 
+        <div class="post-card">
+
+            {% if item.type == "repost" %}
+            <div class="repost-banner">
+                 <img src="{% static 'images/x-retweeticon.png' %}"
+             class="retweet-icon"> {{ item.reposted_by.first_name|default:item.reposted_by.username }} reposted
+            </div>
+            {% endif %}
                     <div class="post-user">
                         <div class="post-user-details">
 
@@ -112,30 +146,39 @@
                             {% endif %}
 
                             <div class="post-meta">
-                                <b>
-                                    {% if post.user.first_name %}
-                                        {{ post.user.first_name }}
-                                    {% else %}
-                                        {{ post.user.username }}
-                                    {% endif %}
-                                </b>
+         <b>
+    {% if post.user.first_name %}
+        {{ post.user.first_name }}
+    {% else %}
+        {{ post.user.username }}
+    {% endif %}
 
+    {% if post.user.verification_status == 'approved' %}
+        <img src="{% static 'images/x-bluetickicon.png' %}" class="bluetick-icon">
+    {% endif %}
+</b>
                                 <small>{{ post.created_at|date:"d M Y H:i" }}</small>
                             </div>
 
                         </div>
-
                         {% if request.user == post.user %}
-                        <div class="post-options">
-                            <form action="{% url 'posts:delete_post' post.id %}" method="POST">
-                                {% csrf_token %}
-                                <button type="submit" class="delete-btn">
-                                    <img src="{% static 'images/x-deleteicon.png' %}" class="x-delete-icon">
-                                </button>
-                            </form>
-                        </div>
-                        {% endif %}
+<div class="post-options">
 
+    {% if request.user.verification_status == 'approved' %}
+        <a href="{% url 'posts:edit_post' post.id %}">
+            <button type="button" class="edit-btn">Edit</button>
+        </a>
+    {% endif %}
+
+    <form action="{% url 'posts:delete_post' post.id %}" method="POST">
+        {% csrf_token %}
+        <button type="submit" class="delete-btn">
+            <img src="{% static 'images/x-deleteicon.png' %}" class="x-delete-icon">
+        </button>
+    </form>
+
+</div>
+{% endif %}
                     </div>
 
                     <div class="post-text">
@@ -152,56 +195,75 @@
                         </video>
                     {% endif %}
 
-                    <div class="post-actions">
-
-                        <div>
-                            <span class="like-btn"
-                                  data-post="{{ post.id }}"
-                                  onclick="toggleLike(this)">
-                                ❤️
-                            </span>
-
-                            <span class="like-count">
-                                {{ post.likes.count }}
-                            </span>
-                        </div>
-
-                        <img src="{% static 'images/x-commenticon.png' %}"
-                             class="comment-icon"
-                             onclick="toggleComments(this)">
-
-                    </div>
-
+     <div class="post-actions">
+     <img src="{% static 'images/x-commenticon.png' %}"
+         class="comment-icon"
+         onclick="toggleComments(this)">
+        <div>
+    <span class="repost-btn {% if post.user_has_reposted %}active{% endif %}"
+          data-post="{{ post.id }}"
+          onclick="toggleRepost(this)">
+          <img src="{% static 'images/x-retweeticon.png' %}"
+         class="retweet-icon">
+    </span>
+    <span class="repost-count">{{ post.reposts.count }}</span>
+        </div>
+        <div>
+    <span class="like-btn {% if post.user_has_liked %}active{% endif %}"
+          data-post="{{ post.id }}"
+          onclick="toggleLike(this)">
+        ❤️
+    </span>
+    <span class="like-count">{{ post.likes.count }}</span>
+</div>
+        <div>
+<span class="bookmark-btn {% if post.user_has_bookmarked %}active{% endif %}"
+      data-post="{{ post.id }}"
+      onclick="toggleBookmark(this)">
+    <img src="{% static 'images/x-bookmarkicon.png' %}"
+         class="bookmark-icon">
+</span>
+</div> 
+       <div class="share-wrapper">
+<span class="share-btn" onclick="toggleShareMenu(this)"> <img src="{% static 'images/x-shareicon.png' %}"
+         class="share-icon"></span>
+<div class="share-menu" style="display:none;">
+    <button onclick="copyPostLink(this)" data-post="{{ post.id }}">
+        Copy link
+    </button>
+    <button onclick="closeShareMenu(this)">Cancel</button>
+</div>
+</div>  
+</div>   
 <div class="comment-section">
 
-    <form action="{% url 'posts:comment_post' post.id %}" method="POST" class="comment-form">
+    <form action="{% url 'posts:comment_post' post.id %}"
+          method="POST"
+          class="comment-form">
         {% csrf_token %}
 
-        <input
-            type="text"
-            name="comment"
-            placeholder="Write a reply..."
-            required
-        >
-
+        <input type="text" name="comment" placeholder="Write a reply..." required>
         <button type="submit">Reply</button>
     </form>
 
-    {% for comment in post.top_comments %}
-        {% include "comment.html" with comment=comment %}
-    {% empty %}
-        <p class="no-comments">No comments yet.</p>
-    {% endfor %}
+    <div class="comments-list">
+{% for comment in post.top_comments %}
+    {% include "comment.html" with comment=comment %}
+{% empty %}
+    <p>No comments yet.</p>
+{% endfor %}
+
+    </div>
 
 </div>
 
-                </div>
-            {% endfor %}
-        {% else %}
-            <p>No posts yet</p>
-        {% endif %}
-    </div>
+        </div>
 
+        {% endwith %}
+    {% endfor %}
+{% else %}
+    <p>No posts yet</p>
+{% endif %}
     <div id="replies-section" class="tab-content" style="display:none;">
         <p>No replies yet</p>
     </div>
