@@ -250,14 +250,16 @@ def people(request):
 
 @login_required
 def request_verification(request):
-    user = request.user
+    if request.method == "POST":
+        user = request.user
 
-    if user.verification_status in ['none', 'rejected']:
-        user.verification_status = 'pending'
-        user.save()
+        if user.verification_status in ['none', 'rejected']:
+            VerificationRequest.objects.create(user=user)
+            user.verification_status = 'pending'
+            user.save()
 
-    return redirect('accounts:profile', username=user.username)
-
+    return redirect('accounts:profile', username=request.user.username)
+    
 from django.shortcuts import render
 from django.db.models import Q
 from .models import User
