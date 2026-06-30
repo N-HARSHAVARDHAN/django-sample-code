@@ -132,8 +132,8 @@
 
             {% if item.type == "repost" %}
             <div class="repost-banner">
-                <img src="{% static 'images/x-retweeticon.png' %}" class="retweet-icon"> {{
-                item.reposted_by.first_name|default:item.reposted_by.username }} reposted
+                <img src="{% static 'images/x-retweeticon.png' %}" class="retweet-icon">
+                 {{item.reposted_by.first_name|default:item.reposted_by.username }} reposted
             </div>
             {% endif %}
             <div class="post-user">
