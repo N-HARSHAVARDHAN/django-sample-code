@@ -14,30 +14,25 @@ def create_post(request):
         content = request.POST.get('content')
         image = request.FILES.get('image')
         video = request.FILES.get('video')
-
         Post.objects.create(
             user=request.user,
             content=content,
             image=image,
             video=video
         )
-
         return redirect('home:homepage')
     return render(request,'create_post.html')
 
 @login_required
 def like_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
-
     like = Like.objects.filter(user=request.user, post=post).first()
-
     if like:
         like.delete()
         liked = False
     else:
         Like.objects.create(user=request.user, post=post)
         liked = True
-
     return JsonResponse({
         "liked": liked,
         "count": post.likes.count()
@@ -47,12 +42,10 @@ def like_post(request, post_id):
 def repost_post(request, post_id):
 
     post = get_object_or_404(Post, id=post_id)
-
     repost = Repost.objects.filter(
         user=request.user,
         post=post
     ).first()
-
     if repost:
         repost.delete()
         reposted = False
@@ -62,7 +55,6 @@ def repost_post(request, post_id):
             post=post
         )
         reposted = True
-
     return JsonResponse({
         "reposted": reposted,
         "count": post.reposts.count()
@@ -73,10 +65,8 @@ def comment_post(request, post_id):
     if request.method == "POST":
 
         post = get_object_or_404(Post, id=post_id)
-
         text = request.POST.get("comment")
         parent_id = request.POST.get("parent_id")
-
         if text:
             parent = get_object_or_404(Comment, id=parent_id) if parent_id else None
 
@@ -86,11 +76,9 @@ def comment_post(request, post_id):
                 text=text,
                 parent=parent
             )
-
             comment.reply_to = parent
             is_reply = parent is not None
             parent_top_id = (parent.parent_id or parent.id) if parent else None
-
             if request.headers.get("X-Requested-With") == "XMLHttpRequest":
                 html = render_to_string(
                     "comment.html",
@@ -111,7 +99,6 @@ def comment_post(request, post_id):
 @login_required
 def delete_post(request,post_id):
     post = get_object_or_404(Post,id = post_id)
-
     if request.user!=post.user:
         return redirect('home:homepage')
     post.delete()
@@ -122,13 +109,11 @@ def delete_comment(request, comment_id):
 
     if request.method != "POST":
         return JsonResponse({"success": False}, status=405)
-
     comment = get_object_or_404(
         Comment,
         id=comment_id,
         user=request.user
     )
-
     comment.delete()
 
     return JsonResponse({
@@ -138,27 +123,21 @@ def delete_comment(request, comment_id):
 
 @login_required
 def edit_comment(request, comment_id):
-
     if request.method != "POST":
         return JsonResponse({"success": False}, status=405)
-
     comment = get_object_or_404(
         Comment,
         id=comment_id,
         user=request.user
     )
-
     text = request.POST.get("text", "").strip()
-
     if not text:
         return JsonResponse({
             "success": False,
             "error": "Comment cannot be empty."
         })
-
     comment.text = text
     comment.save()
-
     return JsonResponse({
         "success": True,
         "text": comment.text
@@ -168,16 +147,13 @@ def edit_comment(request, comment_id):
 @login_required
 def toggle_bookmark(request, post_id):
     post = Post.objects.get(id=post_id)
-
     bookmark, created = Bookmark.objects.get_or_create(
         user=request.user,
         post=post
     )
-
     if not created:
         bookmark.delete()
         return JsonResponse({"status": "removed"})
-
     return JsonResponse({"status": "bookmarked"})
 
 
@@ -185,21 +161,15 @@ def toggle_bookmark(request, post_id):
 @login_required
 def edit_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
-
-    # must be owner
     if request.user != post.user:
         return redirect('home:homepage')
-
-    # must be verified
     if request.user.verification_status != "approved":
         return HttpResponseForbidden("Only verified users can edit posts")
-
     if request.method == "POST":
         content = request.POST.get("content")
         post.content = content
         post.save()
         return redirect('home:homepage')
-
     return render(request, "edit_post.html", {"post": post})
 
 def post_detail(request, post_id):
@@ -223,26 +193,27 @@ def trending_view(request):
     now = timezone.now()
     last_24_hours = now - timedelta(hours=24)
 
-    posts = Post.objects.filter(
+    posts = list(Post.objects.filter(
         created_at__gte=last_24_hours
     ).select_related("user").annotate(
         like_count=Count("likes"),
         comment_count=Count("comments"),
-    )
+    ))
 
-    for post in posts:
-        if hasattr(post, "trending_score") and post.trending_score is not None:
-            score = post.trending_score
-        else:
-            score = (
+    celery_has_run = any(post.trending_score != 0 for post in posts)
+
+    if celery_has_run:
+        pass
+    else:
+        for post in posts:
+            hours_old = (now - post.created_at).total_seconds() / 3600
+            post.trending_score = (
                 post.like_count * 3 +
-                post.comment_count * 5
+                post.comment_count * 5 -
+                hours_old * 0.2
             )
 
-        post.trending_score = score
-
     posts = sorted(posts, key=lambda x: x.trending_score, reverse=True)
-
     attach_engagement_state(posts, request.user)
     attach_comment_threads(posts)
 
