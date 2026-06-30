@@ -13,6 +13,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth import get_user_model
+from .documents import UserDocument
 def signup_view(request):
     if request.method == 'POST':
 
