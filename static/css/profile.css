@@ -134,7 +134,6 @@ body {
     text-decoration: underline;
 }
 
-/* TABS */
 .tabs {
     display: flex;
     border-bottom: 1px solid #2f3336;
@@ -286,7 +285,6 @@ body {
     gap: 14px;
 }
 
-/* COMMENT */
 .comment {
     display: flex;
     gap: 10px;
@@ -328,7 +326,6 @@ body {
     color: #e7e9ea;
 }
 
-/* REPLY LINK */
 .reply-link {
     display: inline-block;
     margin-top: 5px;
@@ -341,7 +338,6 @@ body {
     text-decoration: underline;
 }
 
-/* REPLY FORM */
 .reply-form {
     margin-top: 8px;
     display: flex;
@@ -367,7 +363,6 @@ body {
     cursor: pointer;
 }
 
-/* REPLIES (INFINITE NESTING) */
 .replies {
     margin-left: 20px;
     padding-left: 12px;
@@ -375,19 +370,17 @@ body {
     margin-top: 10px;
 }
 
-/* deeper nesting slightly darker line */
 .replies .replies {
     border-left: 1px solid #3a3f44;
 }
 
-/* HOVER */
+
 .comment:hover,
 .reply:hover {
     background: rgba(255,255,255,0.02);
     border-radius: 8px;
 }
 
-/* EMPTY STATE */
 .no-comments {
     color: #71767b;
     text-align: center;
@@ -450,8 +443,6 @@ body {
     margin-top: 4px;
 }
 
-/* replies no longer get the old margin-left:40px box look,
-   they sit flush under the parent, line does the indicating */
 .replies-container .comment {
     padding-left: 0;
 }
@@ -486,7 +477,6 @@ body {
     color: #f4212e;
 }
 
-/* Save / Cancel pair shown during edit mode */
 .save-comment-btn {
     color: #1d9bf0;
     font-weight: 600;
@@ -500,7 +490,6 @@ body {
     color: #e7e9ea;
 }
 
-/* Edit textarea replacing comment-text while editing */
 .comment-edit-input {
     width: 100%;
     min-height: 60px;

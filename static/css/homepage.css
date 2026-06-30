@@ -361,7 +361,6 @@ a{
     height: 32px;
 }
 
-/* the connecting line itself */
 .thread-line {
     position: absolute;
     width: 2px;
@@ -370,13 +369,11 @@ a{
     transform: translateX(-50%);
 }
 
-/* line going up from a reply's avatar to the one above it */
 .is-reply .thread-line:not(.thread-line-down) {
     top: -12px;
     height: calc(50% + 12px);
 }
 
-/* line going down from a comment that itself has replies */
 .thread-line-down {
     top: 50%;
     bottom: -12px;
@@ -419,7 +416,6 @@ a{
     color: #1d9bf0;
 }
 
-/* "View replies" button styled like X */
 .show-replies {
     background: none;
     border: none;
@@ -441,8 +437,6 @@ a{
     margin-top: 4px;
 }
 
-/* replies no longer get the old margin-left:40px box look,
-   they sit flush under the parent, line does the indicating */
 .replies-container .comment {
     padding-left: 0;
 }
@@ -477,7 +471,6 @@ a{
     color: #f4212e;
 }
 
-/* Save / Cancel pair shown during edit mode */
 .save-comment-btn {
     color: #1d9bf0;
     font-weight: 600;
@@ -491,7 +484,6 @@ a{
     color: #e7e9ea;
 }
 
-/* Edit textarea replacing comment-text while editing */
 .comment-edit-input {
     width: 100%;
     min-height: 60px;

@@ -4,9 +4,9 @@
 
     <a href="{% url 'accounts:profile' comment.user.username %}">
         {% if comment.user.profile_pic %}
-            <img src="{{ comment.user.profile_pic.url }}" class="comment-profile-pic">
+        <img src="{{ comment.user.profile_pic.url }}" class="comment-profile-pic">
         {% else %}
-            <img src="{% static 'images/default-profile.jpeg' %}" class="comment-profile-pic">
+        <img src="{% static 'images/default-profile.jpeg' %}" class="comment-profile-pic">
         {% endif %}
     </a>
 
@@ -36,28 +36,22 @@
 
         <div class="comment-actions">
 
-            <a class="reply-link"
-               data-comment="{{ comment.id }}"
-               data-url="{% url 'posts:comment_post' comment.post.id %}"
-               onclick="toggleReplyForm(this)">
+            <a class="reply-link" data-comment="{{ comment.id }}"
+                data-url="{% url 'posts:comment_post' comment.post.id %}" onclick="toggleReplyForm(this)">
                 Reply
             </a>
 
             {% if request.user == comment.user %}
 
-                <button type="button"
-                        class="comment-edit-btn"
-                        data-comment="{{ comment.id }}"
-                        data-url="{% url 'posts:edit_comment' comment.id %}">
-                    Edit
-                </button>
+            <button type="button" class="comment-edit-btn" data-comment="{{ comment.id }}"
+                data-url="{% url 'posts:edit_comment' comment.id %}">
+                Edit
+            </button>
 
-                <button type="button"
-                        class="comment-delete-btn"
-                        data-comment="{{ comment.id }}"
-                        data-url="{% url 'posts:delete_comment' comment.id %}">
-                    Delete
-                </button>
+            <button type="button" class="comment-delete-btn" data-comment="{{ comment.id }}"
+                data-url="{% url 'posts:delete_comment' comment.id %}">
+                Delete
+            </button>
 
             {% endif %}
 
@@ -66,18 +60,14 @@
         {% if not is_reply and comment.ui_replies %}
         <div class="replies-wrapper" data-top="{{ comment.id }}">
 
-            <button type="button"
-                    class="show-replies"
-                    onclick="toggleReplies(this)">
+            <button type="button" class="show-replies" onclick="toggleReplies(this)">
                 ⌄ View {{ comment.ui_replies|length }} reply{{ comment.ui_replies|length|pluralize }}
             </button>
 
-            <div class="replies-container"
-                 id="replies-{{ comment.id }}"
-                 style="display:none;">
+            <div class="replies-container" id="replies-{{ comment.id }}" style="display:none;">
 
                 {% for reply in comment.ui_replies %}
-                    {% include "comment.html" with comment=reply is_reply=True %}
+                {% include "comment.html" with comment=reply is_reply=True %}
                 {% endfor %}
 
             </div>

@@ -2,7 +2,6 @@ from .models import Like, Repost, Bookmark
 
 
 def attach_comment_threads(posts):
-    """Attaches post.top_comments (with nested .ui_replies and .reply_to) to each post."""
     for post in posts:
         all_comments = list(post.comments.all())
         all_comments.sort(key=lambda x: x.created_at)
@@ -34,7 +33,6 @@ def attach_comment_threads(posts):
 
 
 def attach_engagement_state(posts, user):
-    """Attaches post.user_has_liked / user_has_reposted / user_has_bookmarked to each post."""
     if not user.is_authenticated:
         for post in posts:
             post.user_has_liked = False

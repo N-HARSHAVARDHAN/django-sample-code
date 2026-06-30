@@ -12,6 +12,7 @@ from datetime import date
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.shortcuts import render, get_object_or_404
+
 def signup_view(request):
     if request.method == 'POST':
 
@@ -139,10 +140,6 @@ def profile_view(request, username):
 
         post.top_comments = top_comments
 
-    # -------------------------------
-    # Build profile feed
-    # -------------------------------
-
     profile_feed = []
 
     for post in posts:
@@ -165,7 +162,6 @@ def profile_view(request, username):
         reverse=True
     )
 
-    # --- NEW: attach like/repost/bookmark state for current viewer ---
     liked_ids = set(Like.objects.filter(user=request.user).values_list('post_id', flat=True))
     reposted_ids = set(Repost.objects.filter(user=request.user).values_list('post_id', flat=True))
     bookmarked_ids = set(Bookmark.objects.filter(user=request.user).values_list('post_id', flat=True))
@@ -259,14 +255,6 @@ def request_verification(request):
             user.save()
 
     return redirect('accounts:profile', username=request.user.username)
-    
-from django.shortcuts import render
-from django.db.models import Q
-from .models import User
-from .documents import UserDocument
-from accounts.documents import UserDocument
-from django.contrib.auth import get_user_model
-from django.shortcuts import render
 
 User = get_user_model()
 

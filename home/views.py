@@ -32,7 +32,6 @@ def homepage(request):
         reverse=True
     )
 
-    # --- NEW: figure out what the current user has liked/reposted/bookmarked ---
     liked_ids = set(Like.objects.filter(user=request.user).values_list('post_id', flat=True))
     reposted_ids = set(Repost.objects.filter(user=request.user).values_list('post_id', flat=True))
     bookmarked_ids = set(Bookmark.objects.filter(user=request.user).values_list('post_id', flat=True))

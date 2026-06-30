@@ -30,7 +30,6 @@ function toggleLike(icon) {
     });
 }
 
-/* ---------- Comment / reply submission (delegated — works for dynamic forms too) ---------- */
 
 document.addEventListener("submit", function (e) {
     const form = e.target;
@@ -137,7 +136,6 @@ function toggleReplies(btn) {
     btn.querySelector(".show-replies-icon").textContent = isHidden ? "⌃" : "⌄";
 }
 
-/* ---------- Edit / Delete (delegated — fixes dynamic comments + missing attachCommentActionEvents) ---------- */
 
 document.addEventListener("click", function (e) {
 
@@ -278,7 +276,6 @@ function copyPostLink(btn) {
     btn.closest(".share-menu").style.display = "none";
 }
 
-// optional: click outside closes menu
 document.addEventListener("click", function (e) {
     if (!e.target.closest(".share-wrapper")) {
         document.querySelectorAll(".share-menu").forEach(m => m.style.display = "none");
@@ -299,7 +296,6 @@ function toggleBookmark(el) {
 function togglePostMenu(btn) {
     let menu = btn.nextElementSibling;
 
-    // close other open menus
     document.querySelectorAll('.options-menu').forEach(m => {
         if (m !== menu) m.style.display = 'none';
     });

@@ -5,7 +5,6 @@
     color: white;
 }
 
-/* SEARCH BAR */
 .search-bar {
     display: flex;
     gap: 10px;
@@ -31,7 +30,6 @@
     cursor: pointer;
 }
 
-/* RESULT CARD */
 .user-card {
     display: flex;
     gap: 12px;
@@ -52,7 +50,6 @@
     object-fit: cover;
 }
 
-/* USER INFO */
 .user-info {
     flex: 1;
 }
@@ -71,14 +68,12 @@
     color: #71767b;
 }
 
-/* BLUE TICK */
 .bluetick-icon {
     width: 16px;
     height: 16px;
 
 }
 
-/* BIO */
 .bio {
     font-size: 13px;
     color: #71767b;
@@ -89,7 +84,6 @@
     opacity: 0.6;
 }
 
-/* EMPTY */
 .no-results,
 .hint {
     text-align: center;

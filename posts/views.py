@@ -1,14 +1,12 @@
-from django.shortcuts import render,redirect
-from django.shortcuts import get_object_or_404,redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Post,Like,Comment,Repost,Bookmark
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseForbidden
 from django.template.loader import render_to_string
-from django.db.models import Count, Q
-from .utils import attach_comment_threads, attach_engagement_state
+from django.db.models import Count
 from django.utils import timezone
 from datetime import timedelta
-from django.db.models import Count, F, ExpressionWrapper, FloatField
+from .models import Post, Like, Comment, Repost, Bookmark
+from .utils import attach_comment_threads, attach_engagement_state
 # Create your views here.
 
 def create_post(request):
@@ -91,7 +89,6 @@ def comment_post(request, post_id):
 
             comment.reply_to = parent
             is_reply = parent is not None
-            # the top-level ancestor this reply should visually nest under
             parent_top_id = (parent.parent_id or parent.id) if parent else None
 
             if request.headers.get("X-Requested-With") == "XMLHttpRequest":

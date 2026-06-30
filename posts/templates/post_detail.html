@@ -11,97 +11,85 @@
 
 <main class="content">
 
-<div class="post-card post-detail">
+    <div class="post-card post-detail">
 
-    <div class="post-user">
-        <a href="{% url 'accounts:profile' post.user.username %}">
+        <div class="post-user">
+            <a href="{% url 'accounts:profile' post.user.username %}">
 
-            {% if post.user.profile_pic %}
+                {% if post.user.profile_pic %}
                 <img src="{{ post.user.profile_pic.url }}" class="profile-pic">
-            {% else %}
+                {% else %}
                 <img src="{% static 'images/default-profile.jpeg' %}" class="profile-pic">
-            {% endif %}
+                {% endif %}
 
-            <div class="post-meta">
-                <b>
-                    {{ post.user.first_name|default:post.user.username }}
-                </b>
-        </a>
+                <div class="post-meta">
+                    <b>
+                        {{ post.user.first_name|default:post.user.username }}
+                    </b>
+            </a>
 
-                <small>{{ post.created_at|date:"d M Y H:i" }}</small>
-            </div>
+            <small>{{ post.created_at|date:"d M Y H:i" }}</small>
+        </div>
     </div>
 
     <div class="post-text">{{ post.content }}</div>
 
     {% if post.image %}
-        <img src="{{ post.image.url }}" class="post-media">
+    <img src="{{ post.image.url }}" class="post-media">
     {% endif %}
 
     {% if post.video %}
-        <video controls class="post-media">
-            <source src="{{ post.video.url }}">
-        </video>
+    <video controls class="post-media">
+        <source src="{{ post.video.url }}">
+    </video>
     {% endif %}
 
     <div class="post-actions">
-         <img src="{% static 'images/x-commenticon.png' %}"
-             class="comment-icon"
-             onclick="toggleComments(this)">
-            <div>
-        <span class="repost-btn"
-              data-post="{{ post.id }}"
-              onclick="toggleRepost(this)">
-              <img src="{% static 'images/x-retweeticon.png' %}"
-             class="retweet-icon">
-        </span>
-        <span class="repost-count">{{ post.reposts.count }}</span>
+        <img src="{% static 'images/x-commenticon.png' %}" class="comment-icon" onclick="toggleComments(this)">
+        <div>
+            <span class="repost-btn" data-post="{{ post.id }}" onclick="toggleRepost(this)">
+                <img src="{% static 'images/x-retweeticon.png' %}" class="retweet-icon">
+            </span>
+            <span class="repost-count">{{ post.reposts.count }}</span>
+        </div>
+        <div class="share-wrapper">
+            <span class="share-btn" onclick="toggleShareMenu(this)">🔗</span>
+            <div class="share-menu" style="display:none;">
+                <button onclick="copyPostLink(this)" data-post="{{ post.id }}">
+                    Copy link
+                </button>
+                <button onclick="closeShareMenu(this)">Cancel</button>
             </div>
-            <div class="share-wrapper">
-    <span class="share-btn" onclick="toggleShareMenu(this)">🔗</span>
-    <div class="share-menu" style="display:none;">
-        <button onclick="copyPostLink(this)" data-post="{{ post.id }}">
-            Copy link
-        </button>
-        <button onclick="closeShareMenu(this)">Cancel</button>
-    </div>
-</div>
-                <div>
-            <span class="like-btn"
-                  data-post="{{ post.id }}"
-                  onclick="toggleLike(this)">
+        </div>
+        <div>
+            <span class="like-btn" data-post="{{ post.id }}" onclick="toggleLike(this)">
                 ❤️
             </span>
             <span class="like-count">{{ post.likes.count }}</span>
         </div>
     </div>
 
-<div class="comment-section" style="display:block;">
+    <div class="comment-section" style="display:block;">
 
-    <form action="{% url 'posts:comment_post' post.id %}"
-          method="POST"
-          class="comment-form"
-          data-post="{{ post.id }}">
-        {% csrf_token %}
+        <form action="{% url 'posts:comment_post' post.id %}" method="POST" class="comment-form"
+            data-post="{{ post.id }}">
+            {% csrf_token %}
 
-        <input type="text"
-               name="comment"
-               placeholder="Write a reply..."
-               required>
+            <input type="text" name="comment" placeholder="Write a reply..." required>
 
-        <button type="submit">Reply</button>
-    </form>
+            <button type="submit">Reply</button>
+        </form>
 
-<div class="comments-list">
-    {% for comment in post.top_comments %}
-        {% include "comment.html" with comment=comment %}
-    {% empty %}
-        <p class="no-comments">No comments yet.</p>
-    {% endfor %}
-</div>
-</div>
+        <div class="comments-list">
+            {% for comment in post.top_comments %}
+            {% include "comment.html" with comment=comment %}
+            {% empty %}
+            <p class="no-comments">No comments yet.</p>
+            {% endfor %}
+        </div>
+    </div>
 
-</div>
+    </div>
 
 </main>
 

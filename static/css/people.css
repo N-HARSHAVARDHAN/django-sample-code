@@ -4,7 +4,6 @@ body {
     font-family: Arial, sans-serif;
 }
 
-/* Page title */
 .page-title {
     font-size: 22px;
     font-weight: 700;
@@ -12,7 +11,6 @@ body {
     border-bottom: 1px solid #2f3336;
 }
 
-/* Container */
 .people-list {
     display: flex;
     flex-direction: column;
@@ -23,7 +21,6 @@ body {
     background: transparent;
 
 }
-/* Each user card */
 .person-card {
     display: flex;
     justify-content: space-between;
@@ -39,7 +36,6 @@ body {
     background-color: #0a0a0a;
 }
 
-/* Left side user info */
 .person-info {
     display: flex;
     gap: 10px;
@@ -49,7 +45,6 @@ body {
     flex: 1;
 }
 
-/* Profile image */
 .person-info .profile-pic {
     width: 48px;
     height: 48px;
@@ -57,7 +52,6 @@ body {
     object-fit: cover;
 }
 
-/* Username + bio */
 .person-info b {
     display: block;
     font-size: 15px;
@@ -69,7 +63,6 @@ body {
     margin: 2px 0 0 0;
 }
 
-/* Follow button */
 .follow-btn {
     background-color: #e7e9ea;
     color: #000;
@@ -86,7 +79,6 @@ body {
     background-color: #d7dbdc;
 }
 
-/* Unfollow state */
 .follow-btn.unfollow {
     background-color: transparent;
     color: #e7e9ea;
