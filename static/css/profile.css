@@ -538,7 +538,11 @@ body {
     text-align: left;
     cursor: pointer;
 }
-
+.reply-card-link {
+    color: inherit;
+    text-decoration: none;
+    display: block;
+}
 .share-menu button:hover {
     background: #222;
 }

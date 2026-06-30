@@ -7,12 +7,12 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from accounts.models import User 
 from .models import VerificationRequest
-from posts.models import Post,Repost,Like,Bookmark
+from posts.models import Post,Repost,Like,Bookmark,Comment
 from datetime import date
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.shortcuts import render, get_object_or_404
-
+from django.contrib.auth import get_user_model
 def signup_view(request):
     if request.method == 'POST':
 
@@ -126,11 +126,9 @@ def profile_view(request, username):
 
         def collect_descendants(comment_id):
             result = []
-
             for child in children_map.get(comment_id, []):
                 result.append(child)
                 result.extend(collect_descendants(child.id))
-
             return result
 
         for c in top_comments:
@@ -157,14 +155,14 @@ def profile_view(request, username):
             "reposted_by": repost.user,
         })
 
-    profile_feed.sort(
-        key=lambda item: item["created_at"],
-        reverse=True
-    )
+    profile_feed.sort(key=lambda item: item["created_at"], reverse=True)
 
-    liked_ids = set(Like.objects.filter(user=request.user).values_list('post_id', flat=True))
-    reposted_ids = set(Repost.objects.filter(user=request.user).values_list('post_id', flat=True))
-    bookmarked_ids = set(Bookmark.objects.filter(user=request.user).values_list('post_id', flat=True))
+    if request.user.is_authenticated:
+        liked_ids = set(Like.objects.filter(user=request.user).values_list('post_id', flat=True))
+        reposted_ids = set(Repost.objects.filter(user=request.user).values_list('post_id', flat=True))
+        bookmarked_ids = set(Bookmark.objects.filter(user=request.user).values_list('post_id', flat=True))
+    else:
+        liked_ids = reposted_ids = bookmarked_ids = set()
 
     for item in profile_feed:
         post = item["post"]
@@ -175,9 +173,16 @@ def profile_view(request, username):
     followers_count = user_profile.followers.count()
     following_count = user_profile.following.count()
 
-    is_following = request.user.following.filter(
-        id=user_profile.id
-    ).exists()
+    is_following = False
+    if request.user.is_authenticated:
+        is_following = request.user.following.filter(id=user_profile.id).exists()
+
+    user_replies = (
+        Comment.objects
+        .filter(user=user_profile)
+        .select_related("post", "post__user", "parent")
+        .order_by("-created_at")
+    )
 
     return render(request, 'profile.html', {
         'user_profile': user_profile,
@@ -186,6 +191,7 @@ def profile_view(request, username):
         'followers_count': followers_count,
         'following_count': following_count,
         'is_following': is_following,
+        'user_replies': user_replies,
     })
 
 @login_required
