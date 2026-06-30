@@ -245,7 +245,6 @@ function toggleRepost(icon) {
 
 
 function toggleShareMenu(btn) {
-    // close other open menus first
     document.querySelectorAll(".share-menu").forEach(menu => {
         if (menu !== btn.nextElementSibling) {
             menu.style.display = "none";
