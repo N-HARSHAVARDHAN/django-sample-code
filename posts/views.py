@@ -225,11 +225,10 @@ def bookmarks(request):
 def trending_view(request):
     last_24_hours = timezone.now() - timedelta(hours=24)
 
-    trending_posts = (
+    trending_posts = list(
         Post.objects.filter(created_at__gte=last_24_hours)
-        .annotate(like_count=Count("likes"))
         .select_related("user")
-        .order_by("-like_count", "-created_at")
+        .order_by("-trending_score", "-created_at")
     )
 
     attach_engagement_state(trending_posts, request.user)

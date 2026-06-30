@@ -9,7 +9,7 @@ class Post(models.Model):
         on_delete=models.CASCADE,
         related_name='posts'
     )
-
+    trending_score = models.IntegerField(default=0, db_index=True)
     content = models.TextField(max_length=500)
 
     image = models.ImageField(
