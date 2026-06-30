@@ -8,7 +8,7 @@ from django.db.models import Count, Q
 from .utils import attach_comment_threads, attach_engagement_state
 from django.utils import timezone
 from datetime import timedelta
-
+from django.db.models import Count, F, ExpressionWrapper, FloatField
 # Create your views here.
 
 def create_post(request):
@@ -223,17 +223,29 @@ def bookmarks(request):
 
 @login_required
 def trending_view(request):
-    last_24_hours = timezone.now() - timedelta(hours=24)
+    now = timezone.now()
+    last_24_hours = now - timedelta(hours=24)
 
-    trending_posts = list(
-        Post.objects.filter(created_at__gte=last_24_hours)
-        .select_related("user")
-        .order_by("-trending_score", "-created_at")
+    posts = Post.objects.filter(
+        created_at__gte=last_24_hours
+    ).select_related("user").annotate(
+        like_count=Count("likes"),
+        comment_count=Count("comments"),
     )
 
-    attach_engagement_state(trending_posts, request.user)
-    attach_comment_threads(trending_posts)
+    # Python-based scoring (safe)
+    for post in posts:
+        hours_old = (now - post.created_at).total_seconds() / 3600
 
-    return render(request, "trending.html", {
-        "posts": trending_posts
-    })
+        post.trending_score = (
+            post.like_count * 3 +
+            post.comment_count * 5 -
+            hours_old * 0.2
+        )
+
+    posts = sorted(posts, key=lambda x: x.trending_score, reverse=True)
+
+    attach_engagement_state(posts, request.user)
+    attach_comment_threads(posts)
+
+    return render(request, "trending.html", {"posts": posts})
