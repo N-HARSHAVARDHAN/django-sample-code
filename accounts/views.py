@@ -261,19 +261,31 @@ def request_verification(request):
 from django.shortcuts import render
 from django.db.models import Q
 from .models import User
+from .documents import UserDocument
+from accounts.documents import UserDocument
+from django.contrib.auth import get_user_model
+from django.shortcuts import render
+
+User = get_user_model()
 
 def search_page(request):
-    query = request.GET.get('q', '')
+    query = request.GET.get("q", "")
     users = []
 
     if query:
-        users = User.objects.filter(
-            Q(username__icontains=query) |
-            Q(first_name__icontains=query) |
-            Q(bio__icontains=query)
+        search = UserDocument.search().query(
+            "multi_match",
+            query=query,
+            fields=["username", "bio", "first_name", "last_name"],
+            fuzziness ='AUTO'
         )
 
-    return render(request, 'search.html', {
-        'users': users,
-        'query': query
+        response = search.execute()
+        user_ids = [hit.meta.id for hit in response]
+
+        users = User.objects.filter(id__in=user_ids)
+
+    return render(request, "search.html", {
+        "users": users,
+        "query": query
     })

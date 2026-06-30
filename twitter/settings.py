@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
+    'django_elasticsearch_dsl',
     'cloudinary',
     'cloudinary_storage',
     'django_celery_beat',
@@ -115,6 +115,13 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
+ELASTICSEARCH_DSL = {
+    "default": {
+        "hosts": os.getenv("ELASTICSEARCH_URL"),
+        "api_key": os.getenv("ELASTICSEARCH_API_KEY"),
+    }
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
