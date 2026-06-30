@@ -4,6 +4,11 @@ from django.contrib.auth.decorators import login_required
 from .models import Post,Like,Comment,Repost,Bookmark
 from django.http import JsonResponse
 from django.template.loader import render_to_string
+from django.db.models import Count, Q
+from .utils import attach_comment_threads, attach_engagement_state
+from django.utils import timezone
+from datetime import timedelta
+
 # Create your views here.
 
 def create_post(request):
@@ -162,16 +167,6 @@ def edit_comment(request, comment_id):
         "text": comment.text
     })
 
-@login_required
-def post_detail(request, post_id):
-    post = get_object_or_404(Post, id=post_id)
-
-    return render(request, "post_detail.html", {
-        "post": post,
-    })
-
-from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required
 
 @login_required
 def toggle_bookmark(request, post_id):
@@ -188,15 +183,7 @@ def toggle_bookmark(request, post_id):
 
     return JsonResponse({"status": "bookmarked"})
 
-@login_required
-def bookmarks(request):
-    bookmarks = Bookmark.objects.filter(user=request.user).select_related('post')
 
-    posts = [b.post for b in bookmarks]
-
-    return render(request, "bookmarks.html", {
-        "posts": posts
-    })
 
 @login_required
 def edit_post(request, post_id):
@@ -217,3 +204,37 @@ def edit_post(request, post_id):
         return redirect('home:homepage')
 
     return render(request, "edit_post.html", {"post": post})
+
+def post_detail(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    attach_engagement_state([post], request.user)
+    attach_comment_threads([post])
+    return render(request, "post_detail.html", {"post": post})
+
+
+@login_required
+def bookmarks(request):
+    bookmarks_qs = Bookmark.objects.filter(user=request.user).select_related('post', 'post__user')
+    posts = [b.post for b in bookmarks_qs]
+    attach_engagement_state(posts, request.user)
+    attach_comment_threads(posts)
+    return render(request, "bookmarks.html", {"posts": posts})
+
+
+@login_required
+def trending_view(request):
+    last_24_hours = timezone.now() - timedelta(hours=24)
+
+    trending_posts = (
+        Post.objects.filter(created_at__gte=last_24_hours)
+        .annotate(like_count=Count("likes"))
+        .select_related("user")
+        .order_by("-like_count", "-created_at")
+    )
+
+    attach_engagement_state(trending_posts, request.user)
+    attach_comment_threads(trending_posts)
+
+    return render(request, "trending.html", {
+        "posts": trending_posts
+    })

@@ -22,6 +22,7 @@ path(
     name="edit_comment",
 ),
 path('bookmark/<int:post_id>/', views.toggle_bookmark, name='toggle_bookmark'),
+path('trending/', views.trending_view, name='trending'),
 path("<int:post_id>/", views.post_detail, name="post_detail"),
  path('bookmarks/', views.bookmarks, name='bookmarks'),
  path('edit/<int:post_id>/', views.edit_post, name='edit_post'),

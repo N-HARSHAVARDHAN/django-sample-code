@@ -52,7 +52,10 @@
            <img src="{% static 'images/x-bookmarkicon.png' %}">
                     <span>Bookmarks</span>
                 </a>
-</a>
+                <a href="{% url 'posts:trending' %}">
+            <img src="{% static 'images/x-trendingicon.jpg' %}">
+            <span>Trending</span>
+            </a>
                 {% if user.is_authenticated %}
                     <a href="{% url 'accounts:profile' request.user.username%}">
                         <img src="{% static 'images/x-profileicon.png' %}">
