@@ -11,7 +11,6 @@
 
 <div class="search-page">
 
-    <!-- SEARCH BAR -->
     <form method="GET" action="{% url 'accounts:search_page' %}" class="search-bar">
         <input type="text"
                name="q"
@@ -21,7 +20,6 @@
         <button type="submit">Search</button>
     </form>
 
-    <!-- RESULTS -->
     <div class="results">
 
         {% for user in users %}

@@ -6,6 +6,3 @@ from .models import User, VerificationRequest
 class VerificationRequestAdmin(admin.ModelAdmin):
     list_display = ("user", "status", "created_at")
     list_filter = ("status",)
-
-    # No actions, no custom logic here
-    # Everything handled in model.save()

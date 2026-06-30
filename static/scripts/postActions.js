@@ -226,6 +226,10 @@ function saveCommentEdit(saveBtn) {
             alert(data.error || "Could not save comment.");
             return;
         }
+
+        const textDiv = comment.querySelector("[data-comment-text]");
+        textDiv.innerText = data.text;
+
         restoreCommentActions(comment, data.text, comment.dataset.actionsHtml);
     });
 }

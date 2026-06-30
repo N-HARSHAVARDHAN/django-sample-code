@@ -13,7 +13,6 @@
 
     <div class="person-card">
 
-        <!-- MAKE THIS CLICKABLE -->
         <a href="{% url 'accounts:profile' user.username %}" class="person-info">
 
             {% if user.profile_pic %}
@@ -36,7 +35,6 @@
 
         </a>
 
-        <!-- keep follow button separate -->
         <a href="{% url 'accounts:follow_user' user.id %}" class="follow-btn">
             {% if user in request.user.following.all %}
                 Unfollow
