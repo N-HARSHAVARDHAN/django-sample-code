@@ -1,15 +1,36 @@
 from django.db import models
 from django.conf import settings
+from cloudinary_storage.validators import validate_video
+from .storage import ImageStorage, VideoStorage
 
 class Post(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name='posts')
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='posts'
+    )
+
     content = models.TextField(max_length=500)
-    image = models.ImageField(upload_to='posts/images/', blank=True, null=True)
-    video = models.FileField(upload_to='posts/videos/', blank=True, null=True)
+
+    image = models.ImageField(
+        upload_to="",
+        storage=ImageStorage(),
+        blank=True,
+        null=True
+    )
+
+    video = models.FileField(
+        upload_to="",
+        storage=VideoStorage(),
+        blank=True,
+        null=True,
+        validators=[validate_video]
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.content[:20]
+        return f"{self.user.username}: {self.content[:30]}"
     
 class Like(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,
