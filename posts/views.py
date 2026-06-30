@@ -230,15 +230,16 @@ def trending_view(request):
         comment_count=Count("comments"),
     )
 
-    # Python-based scoring (safe)
     for post in posts:
-        hours_old = (now - post.created_at).total_seconds() / 3600
+        if hasattr(post, "trending_score") and post.trending_score is not None:
+            score = post.trending_score
+        else:
+            score = (
+                post.like_count * 3 +
+                post.comment_count * 5
+            )
 
-        post.trending_score = (
-            post.like_count * 3 +
-            post.comment_count * 5 -
-            hours_old * 0.2
-        )
+        post.trending_score = score
 
     posts = sorted(posts, key=lambda x: x.trending_score, reverse=True)
 

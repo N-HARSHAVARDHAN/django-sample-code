@@ -6,6 +6,7 @@ from .models import Post
 
 @shared_task
 def calculate_trending_scores():
+    now = timezone.now()
     last_24_hours = timezone.now() - timedelta(hours=24)
 
     posts = Post.objects.filter(
@@ -18,9 +19,11 @@ def calculate_trending_scores():
     updated_posts = []
 
     for post in posts:
+        hours_old = (now - post.created_at).total_seconds() / 3600
         score = (
             post.like_count * 3 +
-            post.comment_count * 5
+            post.comment_count * 5 -
+            hours_old * 0.2
         )
 
         post.trending_score = score

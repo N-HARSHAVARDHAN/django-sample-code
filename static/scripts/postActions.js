@@ -78,7 +78,6 @@ function handleReplyInsert(form, data) {
     let wrapper = topComment.parentElement.querySelector(`.replies-wrapper[data-top="${parentTopId}"]`);
 
     if (!wrapper) {
-        // first reply on this thread - the wrapper didn't exist yet, build it
         wrapper = document.createElement("div");
         wrapper.className = "replies-wrapper";
         wrapper.dataset.top = parentTopId;
