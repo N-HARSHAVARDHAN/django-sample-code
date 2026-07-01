@@ -14,6 +14,7 @@ from django.core.exceptions import ValidationError
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth import get_user_model
 from .documents import UserDocument
+from posts.documents import PostDocument
 def signup_view(request):
     if request.method == 'POST':
 
@@ -261,21 +262,45 @@ User = get_user_model()
 def search_page(request):
     query = request.GET.get("q", "")
     users = []
+    posts = []
 
     if query:
+
+        # ---------------- USER SEARCH ----------------
         search = UserDocument.search().query(
             "multi_match",
             query=query,
             fields=["username", "bio", "first_name", "last_name"],
-            fuzziness ='AUTO'
+            fuzziness="AUTO"
         )
 
         response = search.execute()
         user_ids = [hit.meta.id for hit in response]
-
         users = User.objects.filter(id__in=user_ids)
+
+
+        # ---------------- POST SEARCH (ADD THIS) ----------------
+        post_search = PostDocument.search().query(
+            "multi_match",
+            query=query,
+            fields=["content", "hashtags"],
+            fuzziness="AUTO"
+        )
+
+        post_response = post_search.execute()
+
+        post_ids = [int(hit.meta.id) for hit in post_response]
+
+        posts = list(
+            Post.objects.filter(id__in=post_ids).select_related("user")
+        )
+
+        # optional ordering fix
+        posts.sort(key=lambda x: post_ids.index(x.id))
+
 
     return render(request, "search.html", {
         "users": users,
+        "posts": posts,
         "query": query
     })

@@ -5,6 +5,8 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/search.css' %}">
+<link rel="stylesheet" href="{% static 'css/common.css' %}">
+<link rel="stylesheet" href="{% static 'css/homepage.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -13,56 +15,65 @@
 
     <form method="GET" action="{% url 'accounts:search_page' %}" class="search-bar">
         <input type="text" name="q" placeholder="Search users..." value="{{ query }}">
-
         <button type="submit">Search</button>
     </form>
 
     <div class="results">
 
-        {% for user in users %}
+        {% if not query %}
+        <p class="hint">Search users by name or username or post or #hastag</p>
 
-        <a href="{% url 'accounts:profile' user.username %}" class="user-card">
+        {% elif not users and not posts %}
+        <p class="no-results">No results for "{{ query }}"</p>
 
-            {% if user.profile_pic %}
-            <img src="{{ user.profile_pic.url }}" class="profile-pic">
-            {% else %}
-            <img src="{% static 'images/default-profile.jpeg' %}" class="profile-pic">
+        {% else %}
+
+            {% if users %}
+            <div class="search-section">
+                <h2 class="section-header">People</h2>
+                {% for user in users %}
+                <a href="{% url 'accounts:profile' user.username %}" class="user-card">
+                    {% if user.profile_pic %}
+                    <img src="{{ user.profile_pic.url }}" class="profile-pic">
+                    {% else %}
+                    <img src="{% static 'images/default-profile.jpeg' %}" class="profile-pic">
+                    {% endif %}
+                    <div class="user-info">
+                        <div class="name-row">
+                            <b>
+                                {{ user.first_name|default:user.username }}
+                                {% if user.verification_status == 'approved' %}
+                                <img src="{% static 'images/x-bluetickicon.png' %}" class="bluetick-icon">
+                                {% endif %}
+                            </b>
+                            <small>@{{ user.username }}</small>
+                        </div>
+                        {% if user.bio %}
+                        <p class="bio">{{ user.bio }}</p>
+                        {% else %}
+                        <p class="bio muted">No bio</p>
+                        {% endif %}
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
             {% endif %}
 
-            <div class="user-info">
-
-                <div class="name-row">
-                    <b>
-                        {{ user.first_name|default:user.username }}
-
-                        {% if user.verification_status == 'approved' %}
-                        <img src="{% static 'images/x-bluetickicon.png' %}" class="bluetick-icon">
-                        {% endif %}
-                    </b>
-
-                    <small>@{{ user.username }}</small>
-                </div>
-
-                {% if user.bio %}
-                <p class="bio">{{ user.bio }}</p>
-                {% else %}
-                <p class="bio muted">No bio</p>
-                {% endif %}
-
+            {% if posts %}
+            <div class="search-section">
+                <h2 class="section-header">Posts</h2>
+                {% for post in posts %}
+                {% include "post_card.html" with post=post item=None link_user=True show_edit_menu=True show_edit_delete=False extra_class="" comments_visible=False %}
+                {% endfor %}
             </div>
+            {% endif %}
 
-        </a>
-
-        {% empty %}
-        {% if query %}
-        <p class="no-results">No users found</p>
-        {% else %}
-        <p class="hint">Search users by name or username</p>
         {% endif %}
-        {% endfor %}
 
     </div>
 
 </div>
+
+<script src="{% static 'scripts/postActions.js' %}"></script>
 
 {% endblock %}

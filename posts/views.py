@@ -8,20 +8,30 @@ from datetime import timedelta
 from .models import Post, Like, Comment, Repost, Bookmark
 from .utils import attach_comment_threads, attach_engagement_state
 # Create your views here.
+import re
+
+def extract_hashtags(text):
+    return re.findall(r"#(\w+)", text)
 
 def create_post(request):
     if request.method == 'POST':
         content = request.POST.get('content')
         image = request.FILES.get('image')
         video = request.FILES.get('video')
+
+        hashtags = extract_hashtags(content)
+
         Post.objects.create(
             user=request.user,
             content=content,
             image=image,
-            video=video
+            video=video,
+            hashtags=hashtags
         )
+
         return redirect('home:homepage')
-    return render(request,'create_post.html')
+
+    return render(request, 'create_post.html')
 
 @login_required
 def like_post(request, post_id):

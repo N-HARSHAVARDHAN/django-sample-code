@@ -10,7 +10,7 @@ class Post(models.Model):
     )
     trending_score = models.FloatField(default=0, db_index=True)
     content = models.TextField(max_length=500)
-
+    hashtags = models.JSONField(default=list, blank=True)
     image = models.ImageField( upload_to="", storage=ImageStorage(), blank=True, null=True ) 
     video = models.FileField( upload_to="", storage=VideoStorage(), blank=True, null=True, validators=[validate_video] )
 
