@@ -546,6 +546,23 @@ body {
 .share-menu button:hover {
     background: #222;
 }
+.comment-header a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.comment-header a:hover {
+    text-decoration: none;
+}
+
+.reply-context a {
+    color: #1d9bf0;
+    text-decoration: none;
+}
+
+.reply-context a:hover {
+    text-decoration: underline;
+}
 @media (max-width: 500px) {
     .profile-header .profile-pic {
         width: 80px;

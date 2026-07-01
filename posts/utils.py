@@ -3,33 +3,27 @@ from .models import Like, Repost, Bookmark
 
 def attach_comment_threads(posts):
     for post in posts:
-        all_comments = list(post.comments.all())
-        all_comments.sort(key=lambda x: x.created_at)
+            all_comments = list(post.comments.select_related('user').all())
+            comment_map = {c.id: c for c in all_comments}
 
-        comment_map = {c.id: c for c in all_comments}
-        children_map = {}
-        top_comments = []
 
-        for c in all_comments:
-            c.reply_to = comment_map.get(c.parent_id) if c.parent_id else None
-            if c.parent_id is None:
-                top_comments.append(c)
-            else:
-                children_map.setdefault(c.parent_id, []).append(c)
+            for c in all_comments:
+                c.direct_replies = []
 
-        def collect_descendants(comment_id):
-            result = []
-            for child in children_map.get(comment_id, []):
-                result.append(child)
-                result.extend(collect_descendants(child.id))
-            return result
+            for c in all_comments:
+                c.reply_to = comment_map.get(c.parent_id) if c.parent_id else None
+                if c.parent_id:
+                    parent = comment_map.get(c.parent_id)
+                    if parent:
+                        parent.direct_replies.append(c)
 
-        for c in top_comments:
-            descendants = collect_descendants(c.id)
-            descendants.sort(key=lambda x: x.created_at)
-            c.ui_replies = descendants
+            for c in all_comments:
+                c.direct_replies.sort(key=lambda x: x.created_at)
 
-        post.top_comments = top_comments
+            top_comments = [c for c in all_comments if c.parent_id is None]
+            top_comments.sort(key=lambda x: x.created_at)
+
+            post.top_comments = top_comments
 
 
 def attach_engagement_state(posts, user):

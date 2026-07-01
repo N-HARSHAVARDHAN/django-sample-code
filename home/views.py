@@ -39,36 +39,30 @@ def homepage(request):
     for item in feed:
         post = item["post"]
 
-        # --- NEW: attach booleans for template ---
         post.user_has_liked = post.id in liked_ids
         post.user_has_reposted = post.id in reposted_ids
         post.user_has_bookmarked = post.id in bookmarked_ids
 
-        all_comments = list(post.comments.all())
-        all_comments.sort(key=lambda x: x.created_at)
-
+        all_comments = list(post.comments.select_related('user').all())
         comment_map = {c.id: c for c in all_comments}
-        children_map = {}
-        top_comments = []
+
+        # 'direct_replies' -- not 'replies', since that name collides with
+        # the real reverse FK related_name on the Comment model
+        for c in all_comments:
+            c.direct_replies = []
 
         for c in all_comments:
             c.reply_to = comment_map.get(c.parent_id) if c.parent_id else None
-            if c.parent_id is None:
-                top_comments.append(c)
-            else:
-                children_map.setdefault(c.parent_id, []).append(c)
+            if c.parent_id:
+                parent = comment_map.get(c.parent_id)
+                if parent:
+                    parent.direct_replies.append(c)
 
-        def collect_descendants(comment_id):
-            result = []
-            for child in children_map.get(comment_id, []):
-                result.append(child)
-                result.extend(collect_descendants(child.id))
-            return result
+        for c in all_comments:
+            c.direct_replies.sort(key=lambda x: x.created_at)
 
-        for c in top_comments:
-            descendants = collect_descendants(c.id)
-            descendants.sort(key=lambda x: x.created_at)
-            c.ui_replies = descendants
+        top_comments = [c for c in all_comments if c.parent_id is None]
+        top_comments.sort(key=lambda x: x.created_at)
 
         post.top_comments = top_comments
 

@@ -63,40 +63,40 @@ document.addEventListener("submit", function (e) {
 });
 
 function handleReplyInsert(form, data) {
-    const parentTopId = data.parent_top_id;
+    const parentId = data.parent_id; // direct parent this reply was posted to
     form.remove();
 
-    if (!parentTopId) {
+    if (!parentId) {
         const list = form.closest(".comment-section").querySelector(".comments-list");
         list.insertAdjacentHTML("beforeend", data.html);
         return;
     }
 
-    const topComment = document.getElementById(`comment-${parentTopId}`);
-    if (!topComment) return;
+    const parentComment = document.getElementById(`comment-${parentId}`);
+    if (!parentComment) return;
 
-    let wrapper = topComment.parentElement.querySelector(`.replies-wrapper[data-top="${parentTopId}"]`);
+    const parentBody = parentComment.querySelector(":scope > .comment-body");
+    let group = parentBody.querySelector(`:scope > .reply-group[data-parent="${parentId}"]`);
 
-    if (!wrapper) {
-        wrapper = document.createElement("div");
-        wrapper.className = "replies-wrapper";
-        wrapper.dataset.top = parentTopId;
-        wrapper.innerHTML = `
+    if (!group) {
+        group = document.createElement("div");
+        group.className = "reply-group";
+        group.dataset.parent = parentId;
+        group.innerHTML = `
             <button type="button" class="show-replies" onclick="toggleReplies(this)">
-                <span class="show-replies-icon">⌃</span>
-                View 1 reply
+                <span class="show-replies-icon">⌃</span> View 1 reply
             </button>
-            <div class="replies-container" id="replies-${parentTopId}" style="display:block;"></div>
+            <div class="replies-container" id="replies-${parentId}" style="display:block;"></div>
         `;
-        topComment.insertAdjacentElement("afterend", wrapper);
+        parentBody.appendChild(group);
     }
 
-    const container = wrapper.querySelector(".replies-container");
+    const container = group.querySelector(".replies-container");
     container.insertAdjacentHTML("beforeend", data.html);
     container.style.display = "block";
 
-    const btn = wrapper.querySelector(".show-replies");
-    const count = container.querySelectorAll(".comment").length;
+    const btn = group.querySelector(".show-replies");
+    const count = container.querySelectorAll(":scope > .comment").length;
     btn.innerHTML = `<span class="show-replies-icon">⌃</span> View ${count} repl${count === 1 ? "y" : "ies"}`;
 }
 
@@ -128,20 +128,64 @@ function toggleReplyForm(el) {
 }
 
 function toggleReplies(btn) {
-    const wrapper = btn.closest(".replies-wrapper");
-    const container = wrapper.querySelector(".replies-container");
-    const isHidden = container.style.display !== "block";
+    console.log(btn);
+    console.log(btn.nextElementSibling);
+
+    const container = btn.nextElementSibling;
+    if (!container) {
+        console.log("No replies container found!");
+        return;
+    }
+
+    const isHidden = container.style.display === "none";
     container.style.display = isHidden ? "block" : "none";
-    btn.querySelector(".show-replies-icon").textContent = isHidden ? "⌃" : "⌄";
+
+    const count = container.querySelectorAll(":scope > .comment").length;
+    btn.innerHTML = `<span class="show-replies-icon">${isHidden ? "⌃" : "⌄"}</span>
+        ${isHidden ? "Hide" : "View"} ${count} repl${count === 1 ? "y" : "ies"}`;
 }
 
+function getDeleteDialog() {
+    let dialog = document.getElementById("delete-comment-dialog");
+    if (dialog) return dialog;
 
-document.addEventListener("click", function (e) {
+    dialog = document.createElement("dialog");
+    dialog.id = "delete-comment-dialog";
+    dialog.className = "confirm-dialog";
+    dialog.innerHTML = `
+        <div class="confirm-dialog-content">
+            <h3>Delete comment?</h3>
+            <p>This can't be undone.</p>
+            <div class="confirm-dialog-actions">
+                <button type="button" class="btn-secondary" data-action="cancel">Cancel</button>
+                <button type="button" class="btn-danger" data-action="confirm">Delete</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(dialog);
 
-    const deleteBtn = e.target.closest(".comment-delete-btn");
-    if (deleteBtn) {
-        if (!confirm("Delete this comment?")) return;
+    dialog.addEventListener("click", function (e) {
+        if (e.target === dialog) dialog.close(); // click on backdrop
+    });
 
+    return dialog;
+}
+
+function confirmDeleteComment(deleteBtn) {
+    const dialog = getDeleteDialog();
+    dialog.showModal();
+
+    const cancelBtn = dialog.querySelector('[data-action="cancel"]');
+    const confirmBtn = dialog.querySelector('[data-action="confirm"]');
+
+    const newCancel = cancelBtn.cloneNode(true);
+    const newConfirm = confirmBtn.cloneNode(true);
+    cancelBtn.replaceWith(newCancel);
+    confirmBtn.replaceWith(newConfirm);
+
+    newCancel.addEventListener("click", () => dialog.close());
+
+    newConfirm.addEventListener("click", () => {
         fetch(deleteBtn.dataset.url, {
             method: "POST",
             headers: {
@@ -155,7 +199,17 @@ document.addEventListener("click", function (e) {
                 const comment = document.getElementById(`comment-${data.comment_id}`);
                 if (comment) comment.remove();
             }
-        });
+        })
+        .finally(() => dialog.close());
+    });
+}
+
+
+document.addEventListener("click", function (e) {
+
+    const deleteBtn = e.target.closest(".comment-delete-btn");
+    if (deleteBtn) {
+        confirmDeleteComment(deleteBtn);
         return;
     }
 
@@ -230,6 +284,7 @@ function saveCommentEdit(saveBtn) {
         restoreCommentActions(comment, data.text, comment.dataset.actionsHtml);
     });
 }
+
 function toggleRepost(icon) {
     const postId = icon.dataset.post;
     fetch(`/posts/repost/${postId}/`, {
@@ -279,6 +334,7 @@ document.addEventListener("click", function (e) {
         document.querySelectorAll(".share-menu").forEach(m => m.style.display = "none");
     }
 });
+
 function toggleBookmark(el) {
     let postId = el.getAttribute("data-post");
     fetch(`/posts/bookmark/${postId}/`, {
