@@ -88,12 +88,12 @@ def comment_post(request, post_id):
                     },
                     request=request
                 )
-                return JsonResponse({
-                    "success": True,
-                    "html": html,
-                    "is_reply": is_reply,
-                    "parent_top_id": parent_top_id,
-                })
+            return JsonResponse({
+                "success": True,
+                "html": html,
+                "is_reply": is_reply,
+                "parent_id": parent_top_id,
+            })
 
     return redirect(request.META.get("HTTP_REFERER", "home:homepage"))
 @login_required

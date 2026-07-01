@@ -555,3 +555,78 @@ a{
 .bookmark-btn.active .bookmark-icon {
     filter: invert(53%) sepia(94%) saturate(1352%) hue-rotate(176deg) brightness(101%) contrast(101%);
 }
+.confirm-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    margin: 0;
+    border: none;
+    border-radius: 16px;
+    padding: 0;
+    width: 380px;
+    max-width: 90%;
+
+    background: #000;
+    color: #e7e9ea;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.6);
+}
+
+.confirm-dialog::backdrop {
+    background: rgba(91, 112, 131, 0.4);
+    backdrop-filter: blur(3px);
+}
+
+.confirm-dialog-content {
+    padding: 24px;
+}
+
+.confirm-dialog-content h3 {
+    margin: 0 0 10px;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.confirm-dialog-content p {
+    margin: 0 0 22px;
+    color: #71767b;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.confirm-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.btn-secondary,
+.btn-danger {
+    border: none;
+    border-radius: 999px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-secondary {
+    background: transparent;
+    color: #e7e9ea;
+    border: 1px solid #536471;
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.btn-danger {
+    background: #f4212e;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #d91c28;
+}
