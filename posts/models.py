@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
 from cloudinary_storage.validators import validate_video
-
+from .storage import ImageStorage, VideoStorage
 class Post(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -11,18 +11,8 @@ class Post(models.Model):
     trending_score = models.FloatField(default=0, db_index=True)
     content = models.TextField(max_length=500)
 
-    image = models.ImageField(
-        upload_to="posts/images/",
-        blank=True,
-        null=True
-    )
-
-    video = models.FileField(
-        upload_to="posts/videos/",
-        blank=True,
-        null=True,
-        validators=[validate_video]
-    )
+    image = models.ImageField( upload_to="", storage=ImageStorage(), blank=True, null=True ) 
+    video = models.FileField( upload_to="", storage=VideoStorage(), blank=True, null=True, validators=[validate_video] )
 
     created_at = models.DateTimeField(auto_now_add=True)
 
