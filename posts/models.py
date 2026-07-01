@@ -1,7 +1,6 @@
 from django.db import models
 from django.conf import settings
 from cloudinary_storage.validators import validate_video
-from .storage import ImageStorage, VideoStorage
 
 class Post(models.Model):
     user = models.ForeignKey(
@@ -13,15 +12,13 @@ class Post(models.Model):
     content = models.TextField(max_length=500)
 
     image = models.ImageField(
-        upload_to="",
-        storage=ImageStorage(),
+        upload_to="posts/images/",
         blank=True,
         null=True
     )
 
     video = models.FileField(
-        upload_to="",
-        storage=VideoStorage(),
+        upload_to="posts/videos/",
         blank=True,
         null=True,
         validators=[validate_video]
