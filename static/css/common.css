@@ -26,6 +26,7 @@ a {
     padding: 14px;
     text-align: left;
     border-bottom: 1px solid #2f3336;
+    margin-bottom: 0px;
 }
 
 .post-user {
@@ -33,7 +34,7 @@ a {
     align-items: flex-start;
     justify-content: space-between;
     gap: 10px;
-    margin-bottom: 6px;
+    margin-bottom: 0px;
 }
 
 .profile-pic {
@@ -60,8 +61,8 @@ a {
 
 .post-text {
     margin-left: 52px;
-    margin-top: 4px;
-    margin-bottom: 10px;
+    margin-top: 2px;
+    margin-bottom: 12px;
     font-size: 15px;
 }
 
@@ -145,8 +146,8 @@ a {
 }
 
 .comment-text {
-    font-size: 14px;
-    line-height: 1.5;
+    font-size: 16px;
+    line-height: 1.25;
     word-break: break-word;
     color: #e7e9ea;
 }

@@ -115,72 +115,10 @@ body {
     border-bottom: 2px solid #1d9bf0;
 }
 
-/* Extended comment/reply thread layout (avatar rail + connecting lines) */
-.comment {
-    gap: 12px;
-    padding: 12px 4px;
-    position: relative;
-}
-
-.comment-avatar-col {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 40px;
-    flex-shrink: 0;
-}
-
-.comment-profile-pic {
-    width: 40px;
-    height: 40px;
-    z-index: 1;
-}
-
-.is-reply .comment-profile-pic {
-    width: 32px;
-    height: 32px;
-}
-
-.thread-line {
-    position: absolute;
-    width: 2px;
-    background: #2f3336;
-    left: 50%;
-    transform: translateX(-50%);
-}
-
-.is-reply .thread-line:not(.thread-line-down) {
-    top: -12px;
-    height: calc(50% + 12px);
-}
-
-.thread-line-down {
-    top: 50%;
-    bottom: -12px;
-    height: auto;
-}
-
-.comment-body {
-    min-width: 0;
-}
-
-.comment-header {
-    align-items: baseline;
-    gap: 4px;
-    flex-wrap: wrap;
-}
-
 .comment-username,
 .comment-header small {
     color: #71767b;
     font-size: 14px;
-}
-
-.comment-text {
-    margin-top: 2px;
-    white-space: pre-wrap;
-    word-wrap: break-word;
 }
 
 .reply-link {

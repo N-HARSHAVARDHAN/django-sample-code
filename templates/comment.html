@@ -22,7 +22,7 @@
 
         {% if comment.reply_to %}
         <div class="reply-context">
-            Replying to
+           <span style="font-size: small;">Replying to</span>
             <a href="{% url 'accounts:profile' comment.reply_to.user.username %}">
                 @{{ comment.reply_to.user.username }}
             </a>

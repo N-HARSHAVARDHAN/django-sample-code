@@ -232,8 +232,8 @@ body {
 }
 
 .reply-context a {
-    color: #1d9bf0;
     text-decoration: none;
+    font-size: small;
 }
 
 .reply-context a:hover {
@@ -243,7 +243,16 @@ body {
 .like-btn:not(.active) {
     filter: grayscale(1) opacity(0.5);
 }
-
+.reply-link {
+    margin-top: 6px;
+    font-size: 13px;
+    color: #71767b;
+}
+.comment-username,
+.comment-header small {
+    color: #71767b;
+    font-size: 14px;
+}
 @media (max-width: 500px) {
     .profile-header .profile-pic {
         width: 80px;

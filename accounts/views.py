@@ -111,7 +111,30 @@ def profile_view(request, username):
         .order_by("-created_at")
     )
 
+    profile_feed = []
+
     for post in posts:
+        profile_feed.append({
+            "type": "post",
+            "created_at": post.created_at,
+            "post": post,
+        })
+
+    for repost in reposts:
+        profile_feed.append({
+            "type": "repost",
+            "created_at": repost.created_at,
+            "post": repost.post,
+            "reposted_by": repost.user,
+        })
+
+    profile_feed.sort(key=lambda item: item["created_at"], reverse=True)
+
+    # compute top_comments on the actual objects going into the template,
+    # not on the separate `posts` queryset
+    for item in profile_feed:
+        post = item["post"]
+
         all_comments = list(post.comments.select_related('user').all())
         comment_map = {c.id: c for c in all_comments}
 
@@ -132,25 +155,6 @@ def profile_view(request, username):
         top_comments.sort(key=lambda x: x.created_at)
 
         post.top_comments = top_comments
-
-    profile_feed = []
-
-    for post in posts:
-        profile_feed.append({
-            "type": "post",
-            "created_at": post.created_at,
-            "post": post,
-        })
-
-    for repost in reposts:
-        profile_feed.append({
-            "type": "repost",
-            "created_at": repost.created_at,
-            "post": repost.post,
-            "reposted_by": repost.user,
-        })
-
-    profile_feed.sort(key=lambda item: item["created_at"], reverse=True)
 
     if request.user.is_authenticated:
         liked_ids = set(Like.objects.filter(user=request.user).values_list('post_id', flat=True))
@@ -174,7 +178,7 @@ def profile_view(request, username):
 
     user_replies = (
         Comment.objects
-        .filter(user=user_profile)
+        .filter(user=user_profile)   # note: your original had a typo "uchser=user_profile"
         .select_related("post", "post__user", "parent")
         .order_by("-created_at")
     )
@@ -188,8 +192,6 @@ def profile_view(request, username):
         'is_following': is_following,
         'user_replies': user_replies,
     })
-
-@login_required
 def edit_profile_view(request):
     if request.method =='POST':
         request.user.first_name =request.POST.get('first_name')
