@@ -6,9 +6,8 @@ from .models import Post
 
 @registry.register_document
 class PostDocument(Document):
-
+    
     hashtags = Keyword(multi=True)
-
     class Index:
         name = "posts"
 
