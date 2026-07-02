@@ -55,7 +55,7 @@
                 <button type="button" class="edit-btn">Edit</button>
             </a>
             {% endif %}
-            <form action="{% url 'posts:delete_post' post.id %}" method="POST">
+            <form action="{% url 'posts:delete_post' post.id %}" method="POST" class="delete-post-form">
                 {% csrf_token %}
                 <button type="submit" class="delete-btn">
                     <img src="{% static 'images/x-deleteicon.png' %}" class="x-delete-icon">

@@ -107,13 +107,21 @@ def comment_post(request, post_id):
 
     return redirect(request.META.get("HTTP_REFERER", "home:homepage"))
 @login_required
-def delete_post(request,post_id):
-    post = get_object_or_404(Post,id = post_id)
-    if request.user!=post.user:
-        return redirect('home:homepage')
-    post.delete()
-    return redirect(request.META.get('HTTP_REFERER','home:homepage'))
+def delete_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
 
+    if request.user != post.user:
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return JsonResponse({"success": False, "error": "Not allowed"}, status=403)
+        return redirect('home:homepage')
+
+    post.delete()
+
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return JsonResponse({"success": True, "post_id": post_id})
+
+    return redirect(request.META.get('HTTP_REFERER', 'home:homepage'))
+    
 @login_required
 def delete_comment(request, comment_id):
 

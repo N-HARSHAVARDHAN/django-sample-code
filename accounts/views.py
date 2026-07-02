@@ -266,7 +266,6 @@ def search_page(request):
 
     if query:
 
-        # ---------------- USER SEARCH ----------------
         search = UserDocument.search().query(
             "multi_match",
             query=query,
@@ -278,8 +277,6 @@ def search_page(request):
         user_ids = [hit.meta.id for hit in response]
         users = User.objects.filter(id__in=user_ids)
 
-
-        # ---------------- POST SEARCH (ADD THIS) ----------------
         post_search = PostDocument.search().query(
             "multi_match",
             query=query,
@@ -295,7 +292,6 @@ def search_page(request):
             Post.objects.filter(id__in=post_ids).select_related("user")
         )
 
-        # optional ordering fix
         posts.sort(key=lambda x: post_ids.index(x.id))
 
 

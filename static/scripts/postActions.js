@@ -63,7 +63,7 @@ document.addEventListener("submit", function (e) {
 });
 
 function handleReplyInsert(form, data) {
-    const parentId = data.parent_id; // direct parent this reply was posted to
+    const parentId = data.parent_id; 
     form.remove();
 
     if (!parentId) {
@@ -364,3 +364,72 @@ document.addEventListener('click', function(e) {
         });
     }
 });
+document.addEventListener("submit", function (e) {
+    const form = e.target;
+    if (!form.classList.contains("delete-post-form")) return;
+
+    e.preventDefault();
+    confirmDeletePost(form);
+});
+
+function getDeletePostDialog() {
+    let dialog = document.getElementById("delete-post-dialog");
+    if (dialog) return dialog;
+
+    dialog = document.createElement("dialog");
+    dialog.id = "delete-post-dialog";
+    dialog.className = "confirm-dialog";
+    dialog.innerHTML = `
+        <div class="confirm-dialog-content">
+            <h3>Delete post?</h3>
+            <p>This can't be undone.</p>
+            <div class="confirm-dialog-actions">
+                <button type="button" class="btn-secondary" data-action="cancel">Cancel</button>
+                <button type="button" class="btn-danger" data-action="confirm">Delete</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(dialog);
+
+    dialog.addEventListener("click", function (e) {
+        if (e.target === dialog) dialog.close();
+    });
+
+    return dialog;
+}
+
+function confirmDeletePost(form) {
+    const dialog = getDeletePostDialog();
+    dialog.showModal();
+
+    const cancelBtn = dialog.querySelector('[data-action="cancel"]');
+    const confirmBtn = dialog.querySelector('[data-action="confirm"]');
+
+    const newCancel = cancelBtn.cloneNode(true);
+    const newConfirm = confirmBtn.cloneNode(true);
+    cancelBtn.replaceWith(newCancel);
+    confirmBtn.replaceWith(newConfirm);
+
+    newCancel.addEventListener("click", () => dialog.close());
+
+    newConfirm.addEventListener("click", () => {
+        fetch(form.action, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": getCookie("csrftoken"),
+                "X-Requested-With": "XMLHttpRequest"
+            },
+            body: new FormData(form)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                const postCard = form.closest(".post-card");
+                if (postCard) postCard.remove();
+            } else {
+                alert(data.error || "Could not delete post.");
+            }
+        })
+        .finally(() => dialog.close());
+    });
+}

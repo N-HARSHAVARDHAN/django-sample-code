@@ -39,17 +39,9 @@ class Comment(models.Model):
         return self.text[:20]
 
 class Repost(models.Model):
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name="reposts"
-    )
-
-    post = models.ForeignKey(
-        Post,
-        on_delete=models.CASCADE,
-        related_name="reposts"
-    )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name="reposts")
+    post = models.ForeignKey(Post,on_delete=models.CASCADE,related_name="reposts"
+)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
