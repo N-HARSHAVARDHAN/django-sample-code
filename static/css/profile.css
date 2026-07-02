@@ -149,7 +149,7 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 6px;
+    margin-bottom: 0px;
 }
 
 .delete-btn {
@@ -234,6 +234,8 @@ body {
 .reply-context a {
     text-decoration: none;
     font-size: small;
+    margin-bottom: 2px;
+    margin-top: 0px;
 }
 
 .reply-context a:hover {

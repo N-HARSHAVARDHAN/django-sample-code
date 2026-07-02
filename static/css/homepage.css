@@ -136,3 +136,7 @@ body {
     gap: 10px;
     align-items: center;
 }
+.reply-context{
+    font-size: small;
+    margin-bottom: 2px;
+}
